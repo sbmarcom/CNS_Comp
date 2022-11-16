@@ -1,0 +1,164 @@
+
+
+Radiobuttons for Axis-Select XYZAB
+813 - 876
+radiobutton $_tabs_manual.axes.axisx \
+	-anchor w \
+	-padx 0 \
+	-value x \
+	-variable current_axis \
+	-image [load_image X_0] \
+	-selectimage [load_image X_1] \
+	-indicatoron 0 \
+	-offrelief flat \
+	-overrelief flat \
+        -text X \
+        -command axis_activated
+	
+	
+	
+Grid changed to get all in Line
+935
+grid $_tabs_manual.axes.axisa \
+	-column 3 \
+	-row 0 \
+	-padx 4
+
+941
+grid $_tabs_manual.axes.axisb \
+	-column 4 \
+	-row 0 \
+	-padx 4
+	
+	
+	
+Enlarge JogButtons and Increment-select
+1112
+
+button $_tabs_manual.jogf.jog.jogminus \
+	-command {if {![is_continuous]} {jog_minus 1}} \
+	-padx 10 \
+	-pady 10 \
+	-width 2 \
+        -text -
+	
+button $_tabs_manual.jogf.jog.jogplus \
+	-command {if {![is_continuous]} {jog_plus 1}} \
+	-padx 10 \
+	-pady 10 \
+        -text +
+	
+combobox $_tabs_manual.jogf.jog.jogincr \
+	-editable 0 \
+	-textvariable jogincrement \
+	-value [_ Continuous] \
+	-relief sunken \
+	-font Helvetica20
+$_tabs_manual.jogf.jog.jogincr list insert end [_ Continuous] 0.1000 0.0100 0.0010 0.0001
+	
+	
+Home and TouchOff
+1150
+
+button $_tabs_manual.jogf.zerohome.home \
+	-command home_axis \
+	-padx 2m \
+	-pady 0 \
+	-image  [load_image Home_0]
+setup_widget_accel $_tabs_manual.jogf.zerohome.home [_ "Home Axis"]
+
+button $_tabs_manual.jogf.zerohome.zero \
+	-command touch_off_system \
+	-padx 2m \
+	-pady 2 \
+	-image  [load_image Touch_0]
+setup_widget_accel $_tabs_manual.jogf.zerohome.zero [_ "Touch Off"]
+
+button $_tabs_manual.jogf.zerohome.tooltouch \
+	-command touch_off_tool \
+	-padx 2m \
+	-pady 0 \
+	-image  [load_image T-Touch_0]
+setup_widget_accel $_tabs_manual.jogf.zerohome.tooltouch [_ "Tool Touch Off"]
+
+
+Spindle
+1249
+
+frame $_tabs_manual.spindlef -relief groove -bd 2 -padx 45
+frame $_tabs_manual.spindlef.row1
+frame $_tabs_manual.spindlef.row2 
+
+radiobutton $_tabs_manual.spindlef.ccw \
+	-borderwidth 2 \
+	-command spindle \
+	-image [load_image M4_0] \
+	-indicatoron 0 \
+	-selectcolor [systembuttonface] \
+	-value -1 \
+	-variable spindledir
+setup_widget_accel $_tabs_manual.spindlef.ccw {}
+
+radiobutton $_tabs_manual.spindlef.stop \
+	-borderwidth 2 \
+	-command spindle \
+	-indicatoron 0 \
+	-image  [load_image STOP_0] \
+	-selectcolor [systembuttonface] \
+	-value 0 \
+	-variable spindledir
+setup_widget_accel $_tabs_manual.spindlef.stop [_ Stop]
+
+radiobutton $_tabs_manual.spindlef.cw \
+	-borderwidth 2 \
+	-command spindle \
+	-image [load_image MDI_GO_0] \
+	-indicatoron 0 \
+	-selectcolor [systembuttonface] \
+	-value 1 \
+	-variable spindledir
+setup_widget_accel $_tabs_manual.spindlef.cw {}
+
+button $_tabs_manual.spindlef.spindleminus \
+	-padx 0 \
+	-pady 0 \
+	-width 6\
+	-height 2
+bind $_tabs_manual.spindlef.spindleminus <Button-1> {
+	if {[%W cget -state] == "disabled"} { continue }
+	spindle_decrease
+	
+	
+Coolant
+1365
+
+checkbutton $_tabs_manual.mist \
+	-command mist \
+	-variable mist \
+	-indicatoron 0 \
+	-borderwidth 3 \
+	-image [load_image Mist_0] 
+setup_widget_accel $_tabs_manual.mist [_ Mist]
+
+checkbutton $_tabs_manual.flood \
+	-command flood \
+	-variable flood \
+	-indicatoron 0 \
+	-borderwidth 3 \
+	-image [load_image Flood_0] 
+setup_widget_accel $_tabs_manual.flood [_ Flood]
+
+
+MDI
+1470
+
+entry $_tabs_mdi.command \
+	-textvariable mdi_command \
+	-font Helvetica20
+	
+button $_tabs_mdi.go \
+	-command send_mdi \
+	-padx 2m \
+	-image [load_image MDI_GO_0] \
+	-pady 0
+setup_widget_accel $_tabs_mdi.go [_ Go]

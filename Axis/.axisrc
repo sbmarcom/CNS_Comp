@@ -1,0 +1,242 @@
+#Menu
+
+root_window.tk.call(".menu","configure","-font","12")
+root_window.tk.call(".menu.file","configure","-font","12")
+root_window.tk.call(".menu.file.recent","configure","-font","12")
+
+root_window.tk.call(".menu.machine","configure","-font","12")
+root_window.tk.call(".menu.machine.home","configure","-font","12")
+root_window.tk.call(".menu.machine.unhome","configure","-font","12")
+root_window.tk.call(".menu.machine.touchoff","configure","-font","12")
+root_window.tk.call(".menu.machine.clearoffset","configure","-font","12")
+
+root_window.tk.call(".menu.view","configure","-font","12")
+root_window.tk.call(".menu.view.grid","configure","-font","12")
+root_window.tk.call(".menu.help","configure","-font","12")
+
+
+root_window.tk.call(".pane.top.tabs.fmanual.axis","configure"
+)
+################################################
+
+
+
+################################################
+
+#G1 Override
+
+#root_window.tk.call(pane_top+".feedoverride.foscale","configure"
+root_window.tk.call(".pane.top.feedoverride.foscale","configure"
+,"-orient","h"
+,"-troughcolor","black"
+#,"-from","0" #if this is active, it overrides .ini settings
+#,"-to","150" #if this is active, it overrides .ini settings
+,"-label","G1 Override"
+,"-font","Helvetica 12"
+,"-length","350"
+,"-width","18"
+,"-sliderlength","40"
+)
+
+#erase the old text to the left
+root_window.tk.call(pane_top+".feedoverride.l","configure"
+,"-text",""
+)
+
+#for the % sign
+root_window.tk.call(pane_top+".feedoverride.m","configure"
+,"-text","%"
+,"-font","Helvetica 18"
+,"-width","2"
+)
+
+#showing  Number
+root_window.tk.call(pane_top+".feedoverride.foentry","configure"
+,"-font","Helvetica 18"
+#,"-height",""
+)
+
+
+################################################
+
+#G0 Override
+
+root_window.tk.call(pane_top+".rapidoverride.foscale","configure"
+,"-orient","h"
+,"-troughcolor","black"
+#,"-from","0" #if this is active, it overrides .ini settings
+#,"-to","150" #if this is active, it overrides .ini settings
+,"-label","G0 Override"
+,"-font","Helvetica 12"
+,"-length","350"
+,"-width","18"
+,"-sliderlength","40"
+)
+
+#erase the old text to the left
+root_window.tk.call(pane_top+".rapidoverride.l","configure"
+,"-text",""
+)
+
+#for the % sign
+root_window.tk.call(pane_top+".rapidoverride.m","configure"
+,"-text","%"
+,"-font","Helvetica 18"
+,"-width","2"
+)
+
+#showing  Number
+root_window.tk.call(pane_top+".rapidoverride.foentry","configure"
+,"-font","Helvetica 18"
+#,"-height",""
+)
+
+################################################
+
+#Spindle-Override
+
+root_window.tk.call(pane_top+".spinoverride.foscale","configure"
+,"-orient","h"
+,"-troughcolor","black"
+#,"-from","0" #if this is active, it overrides .ini settings
+#,"-to","150" #if this is active, it overrides .ini settings
+,"-label","Spindle-Override"
+,"-font","Helvetica 12"
+,"-length","350"
+,"-width","18"
+,"-sliderlength","40"
+)
+
+#erase the old text to the left
+root_window.tk.call(pane_top+".spinoverride.l","configure"
+,"-text",""
+)
+
+#for the % sign
+root_window.tk.call(pane_top+".spinoverride.m","configure"
+,"-text","%"
+,"-font","Helvetica 18"
+,"-width","2"
+)
+
+#showing  Number
+root_window.tk.call(pane_top+".spinoverride.foentry","configure"
+,"-font","Helvetica 18"
+#,"-height",""
+)
+
+################################################
+
+#Jogspeed Linear
+
+root_window.tk.call(pane_top+".jogspeed.s","configure"
+,"-orient","h"
+,"-troughcolor","black"
+#,"-from","0" #if this is active, it overrides .ini settings
+#,"-to","150" #if this is active, it overrides .ini settings
+,"-label","Jog-Speed mm/min"
+,"-font","Helvetica 12"
+,"-length","350"
+,"-width","18"
+,"-sliderlength","40"
+)
+
+#erase the old text to the left
+root_window.tk.call(pane_top+".jogspeed.l0","configure"
+,"-text",""
+)
+
+#erase the mm/min to the left
+root_window.tk.call(pane_top+".jogspeed.l1","configure"
+,"-text",""
+,"-width","0"
+)
+
+#for the Number
+root_window.tk.call(pane_top+".jogspeed.l","configure"
+,"-text","%"
+,"-font","Helvetica 18"
+#,"-width","2"
+)
+
+
+################################################
+
+#Jogspeed Angular
+
+root_window.tk.call(pane_top+".ajogspeed.s","configure"
+,"-orient","h"
+,"-troughcolor","black"
+#,"-from","0" #if this is active, it overrides .ini settings
+#,"-to","150" #if this is active, it overrides .ini settings
+,"-label","Jog-Speed deg/min"
+,"-font","Helvetica 12"
+,"-length","350"
+,"-width","18"
+,"-sliderlength","40"
+)
+
+#erase the old text to the left
+root_window.tk.call(pane_top+".ajogspeed.l0","configure"
+,"-text",""
+)
+
+#erase the deg/min to the left
+root_window.tk.call(pane_top+".ajogspeed.l1","configure"
+,"-text",""
+)
+
+#for the Number
+root_window.tk.call(pane_top+".ajogspeed.l","configure"
+,"-text","%"
+,"-font","Helvetica 18"
+)
+
+
+################################################
+
+#Max Velocity
+
+root_window.tk.call(pane_top+".maxvel.s","configure"
+,"-orient","h"
+,"-troughcolor","black"
+#,"-from","0" #if this is active, it overrides .ini settings
+#,"-to","150" #if this is active, it overrides .ini settings
+,"-label","Max Velocity mm/min"
+,"-font","Helvetica 12"
+,"-length","350"
+,"-width","18"
+,"-sliderlength","40"
+)
+
+#erase the old text to the left
+root_window.tk.call(pane_top+".maxvel.l0","configure"
+,"-text",""
+)
+
+#erase the deg/min to the left
+root_window.tk.call(pane_top+".maxvel.l1","configure"
+,"-text",""
+)
+
+#for the Number
+root_window.tk.call(pane_top+".maxvel.l","configure"
+,"-text","%"
+,"-font","Helvetica 18"
+)
+
+################################################
+
+#G-Code Window
+root_window.tk.call(pane_bottom+".t","configure"
+,"-borderwidth","3"
+,"-relief","raised"
+)
+
+root_window.tk.call(pane_bottom+".t.text","configure"
+,"-background","black"
+,"-foreground","white"
+,"-font","Console 12"
+,"-selectforeground","blue"
+)
+

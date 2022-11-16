@@ -1,0 +1,85 @@
+<pyvcp>
+<checkbutton>
+    <halpin>"flame"</halpin>
+    <text>"Confirm Torch is On"</text>
+</checkbutton>
+<button>
+	<halpin>"pierce"</halpin>
+	<text>"Click to Pierce"</text>
+</button>
+ <labelframe text="Jog Buttons">
+    <font>("Helvetica",16)</font>
+
+      <!-- the X jog buttons -->
+      <hbox>
+      <relief>RAISED</relief>
+      <bd>3</bd>
+      <button>
+        <font>("Helvetica",20)</font>
+        <width>3</width>
+        <halpin>"mf"</halpin>
+        <text>"F-"</text>
+      </button>
+      <button>
+        <font>("Helvetica",20)</font>
+        <width>3</width>
+        <halpin>"pf"</halpin>
+        <text>"F+"</text>
+      </button>
+      </hbox>
+
+      <!-- the Y jog buttons -->
+      <hbox>
+      <relief>RAISED</relief>
+      <bd>3</bd>
+      <button>
+        <font>("Helvetica",20)</font>
+        <width>3</width>
+        <halpin>"mpo"</halpin>
+        <text>"O-"</text>
+      </button>
+      <button>
+        <font>("Helvetica",20)</font>
+        <width>3</width>
+        <halpin>"ppo"</halpin>
+        <text>"O+"</text>
+</button>
+      </hbox>
+
+      <!-- the Z jog buttons -->
+      <hbox>
+      <relief>RAISED</relief>
+      <bd>3</bd>
+      <button>
+        <font>("Helvetica",20)</font>
+        <width>3</width>
+        <halpin>"mco"</halpin>
+        <text>"C-"</text>
+      </button>
+      <button>
+        <font>("Helvetica",20)</font>
+        <width>3</width>
+        <halpin>"pco"</halpin>
+        <text>"C+"</text>
+      </button>
+      </hbox>
+
+      <!-- the jog speed slider -->
+      <vbox>
+      <relief>RAISED</relief>
+      <bd>3</bd>
+      <label>
+        <text>"Jog Amount (PSI)"</text>
+        <font>("Helvetica",16)</font>
+      </label>
+      <scale>
+        <font>("Helvetica",14)</font>
+        <halpin>"gga"</halpin>
+      <resolution>1</resolution>
+        <orient>HORIZONTAL</orient>
+        <min_>0</min_>
+        <max_>80</max_>
+      </scale>
+      </vbox>
+  </labelframe>
+</pyvcp>

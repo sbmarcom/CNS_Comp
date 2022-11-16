@@ -1,0 +1,8 @@
+Send check enable/disable read with datastr: '0106B000'
+Returned signal '0186B0015E\r\x00'
+
+Send enable/disable command with datastr '0106B100'
+Retruned signal '0106B1C6\r\x00'
+
+Send check enable/disable read with datastr: '0106B011'
+Returned signal '0106B1C6\r\x00'
