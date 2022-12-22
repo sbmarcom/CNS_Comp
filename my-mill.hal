@@ -3,8 +3,14 @@
 
 	loadrt [KINS]KINEMATICS
 	loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
-
+	loadrt hal_pi_gpio dir=52299804 exclude=16382971
 	loadrt remora
+
+#load the GC python script
+	loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
+	GC.ModuleStatus ->
+	GC.ModulePluggedIn ->
+	GC.CuttingJet ->
 
 
 # estop loopback, SPI comms enable and feedback
