@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import spidev
 import hal
 import time
@@ -31,9 +31,10 @@ except linuxcnc.error, detail:
 
 
 c =hal.component('GC')
-c.newpin("ModuleStatus",hal.HAL_U32,hal.HAL_IN) #TBA
-c.newpin("ModulePluggedIn",hal.HAL_U32,hal.HAL_IN) #TBA
-
+c.newpin("ModuleStatus",hal.HAL_U32,hal.HAL_IO) #TBA
+c.newpin("ModulePluggedIn",hal.HAL_BIT,hal.HAL_IO) #TBA
+c.newpin("CuttingJet",hal.HAL_U32,hal.HAL_IO)
+time.sleep(.1)
 c.ready()
 
 
@@ -50,6 +51,7 @@ class module:
     def __init__(self):
         self.PluggedIn = False
         self.Initialized = False
+        self.CuttingJet = False
     def Initialize():
         c.ModuleStatus=1
         for (p_id, p_info in ParameterDict.items()): 
@@ -60,17 +62,22 @@ class module:
     def DeInit():
         c.ModuleStatus = 0
         self.Initialized = False
+
     def SendParameters(header, data):
         Tx =struct.pack('cf',header,data) #pack the header and data into a byte array
         crc = #calculate checksum of the byte array
         spi.xfer(Tx)
+    def TurnOnJet():
+        self.SendParameters(PacketHeaders['Setpoint'],ParameterDict['Cutting']['Setpoint'])
+    def TurnOffJet():
+        self.SendParameters(PacketHeaders['Setpoint'],0)
 
 
 
 Manifold = module()
 
 while (True):
-    Manifold.PluggedIn = hal.get_value("ModulePluggedIn")
+    Manifold.PluggedIn = c.ModuleStatus
     if Manifold.PluggedIn ==False and Manifold.Initialized ==False:
         continue
     if Manifold.PluggedIn ==False and Manifold.Initialized==True:
@@ -81,8 +88,21 @@ while (True):
         continue
     s.poll()
     if (s.estop == STATE_ESTOP):
+        continue
         #tell gas to turn off
-    mcodes = s.mcodes
+    match c.CuttingJet:
+        case False:
+            if Manifold.CuttingJet==True:
+                Manifold.TurnOffJet()   
+            continue
+
+        case True:
+            if Manifold.CuttingJet==False:
+                Manifold.TurnOnJet()
+    
+            
+                
+    
 
     
     
