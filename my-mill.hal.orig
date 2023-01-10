@@ -3,6 +3,8 @@
 
 	loadrt [KINS]KINEMATICS
 	loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+<<<<<<< HEAD
+	#loadrt hal_pi_gpio dir=52297732 exclude=274436
 	loadrt remora
 
 
@@ -25,9 +27,11 @@
 #	
 #	net jog-y-analog input.0.abs-y-position
 #	net jog-x-analog input.0.abs-x-position
+=======
 	loadrt remora
 
 
+>>>>>>> origin/master
 # estop loopback, SPI comms enable and feedback
 	net user-enable-out 	<= iocontrol.0.user-enable-out		=> remora.SPI-enable
 	net user-request-enable <= iocontrol.0.user-request-enable	=> remora.SPI-reset
@@ -40,9 +44,14 @@
 	addf remora.read servo-thread
 	addf motion-command-handler servo-thread
 	addf motion-controller servo-thread
-	addf remora.write servo-thread
+<<<<<<< HEAD
+	addf remora.update-freq servo-thread
+	#addf remora.write servo-thread
+#	addf remora.transaction servo-thread 
+=======
 	#write position feedback
 	addf remora.write servo-thread
+>>>>>>> origin/master
 
 	
 
@@ -67,7 +76,11 @@
 	net j1pos-fb 		<= remora.joint.1.pos-fb 	=> joint.1.motor-pos-fb 
 	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable
 
+<<<<<<< HEAD
 #
+=======
+
+>>>>>>> origin/master
 ## Joint 2 setup
 #
 #	setp remora.joint.2.scale 		[JOINT_2]SCALE
