@@ -4,7 +4,7 @@
     <text>"Confirm Torch is On"</text>
 </checkbutton>
 <button>
-	<halpin>"pierce"</halpin>
+	<halpin>"Pierce"</halpin>
 	<text>"Click to Pierce"</text>
 </button>
  <labelframe text="Jog Buttons">

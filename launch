@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+linuxcnc ~/cn-seamless/my-mill.ini
