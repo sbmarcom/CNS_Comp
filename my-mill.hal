@@ -3,14 +3,7 @@
 
 	loadrt [KINS]KINEMATICS
 	loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
-	loadrt hal_pi_gpio dir=52299804 exclude=16382971
 	loadrt remora
-
-#load the GC python script
-	loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
-	GC.ModuleStatus ->
-	GC.ModulePluggedIn ->
-	GC.CuttingJet ->
 
 
 # estop loopback, SPI comms enable and feedback
@@ -21,10 +14,11 @@
 
 # add the remora and motion functions to threads
 
+	#read position feedback
 	addf remora.read servo-thread
 	addf motion-command-handler servo-thread
 	addf motion-controller servo-thread
-	addf remora.update-freq servo-thread
+	#write position feedback
 	addf remora.write servo-thread
 
 
@@ -33,7 +27,7 @@
 	setp remora.joint.0.scale 		[JOINT_0]SCALE
 	setp remora.joint.0.maxaccel 	[JOINT_0]STEPGEN_MAXACCEL
 
-	net xpos-cmd 		<= joint.0.motor-pos-cmd 	=> remora.joint.0.pos-cmd  
+	net j0pos-cmd 		<= joint.0.motor-pos-cmd 	=> remora.joint.0.pos-cmd  
 	net j0pos-fb 		<= remora.joint.0.pos-fb 	=> joint.0.motor-pos-fb
 	net j0enable 		<= joint.0.amp-enable-out 	=> remora.joint.0.enable
 
@@ -48,11 +42,11 @@
 	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable
 
 
-# Joint 2 setup
-
-	setp remora.joint.2.scale 		[JOINT_2]SCALE
-	setp remora.joint.2.maxaccel 	[JOINT_2]STEPGEN_MAXACCEL
-
-	net j2pos-cmd 		<= joint.2.motor-pos-cmd 	=> remora.joint.2.pos-cmd
-	net j2pos-fb 		<= remora.joint.2.pos-fb 	=> joint.2.motor-pos-fb
-	net j2enable 		<= joint.2.amp-enable-out 	=> remora.joint.2.enable
+## Joint 2 setup
+#
+#	setp remora.joint.2.scale 		[JOINT_2]SCALE
+#	setp remora.joint.2.maxaccel 	[JOINT_2]STEPGEN_MAXACCEL
+#
+#	net j2pos-cmd 		<= joint.2.motor-pos-cmd 	=> remora.joint.2.pos-cmd
+#	net j2pos-fb 		<= remora.joint.2.pos-fb 	=> joint.2.motor-pos-fb
+#	net j2enable 		<= joint.2.amp-enable-out 	=> remora.joint.2.enable
