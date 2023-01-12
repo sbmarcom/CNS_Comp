@@ -60,12 +60,13 @@ license "GPL";
 #include "posemath.h"
 #include "hal.h"
 #include "kinematics.h"
+#include "switchkins.h"
 
 static struct hal_data {
  hal_float_t *d1, *d2, *d3, *d4, *d5, *d6,*r1;
  hal_u32_t *in;
  hal_u32_t *out;
-
+ hal_bit_t  * iflag;
 } *haldata;
 
 #define D1 (*(haldata->d1))
@@ -84,7 +85,6 @@ static struct hal_data {
 #define DEFAULT_D6  50
 
 
-
 static int proto2kins_setup(void) {
     int res=0;
     int comp_id;
@@ -100,6 +100,8 @@ static int proto2kins_setup(void) {
     res += hal_pin_float_newf(HAL_IN, &(haldata->d4), comp_id,"%s.D4","proto2kins");
     res += hal_pin_float_newf(HAL_IN, &(haldata->d5), comp_id,"%s.D5","proto2kins");
     res += hal_pin_float_newf(HAL_IN, &(haldata->d6), comp_id,"%s.D6","proto2kins");
+    res += hal_pin_bit_newf  (HAL_IN , &(haldata ->iflag), comp_id, "%s.iflag","proto2kins" );
+
     if (res) { goto error; }
 
     D1 = DEFAULT_D1;
@@ -114,6 +116,9 @@ static int proto2kins_setup(void) {
 
 error:
     return -1;}
+
+KINS_NOT_SWITCHABLE;
+
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);
@@ -137,7 +142,7 @@ int kinematicsForward(const double *joint,
 /* convert joint angles to radians for sin() and cos() */
 
     a0 = joint[0] * ( PM_PI / 180 );
-    a1 = joint[1] * ( PM_PI / 180 );
+    a1 = joint[1] * ( PM_PI / 180 )*-1;
     a2 = joint[2];
 /* convert angles into world coords */
     a1 = a1+ a0;
@@ -146,9 +151,9 @@ int kinematicsForward(const double *joint,
     x = D2*cos(a0) + D4*cos(a1) ;
     y = D2*sin(a0) + D4*sin(a1) ;
 
-    *iflags = 0;
-    if (joint[1] < 90)
-        *iflags = 1;
+    *iflags = 1;
+    //if (joint[1]*-1 > 90)
+     //   *iflags = 1;
 
     world->tran.x = x;
     world->tran.y = y;
@@ -171,10 +176,6 @@ int kinematicsInverse(const  EmcPose *world,
     y = world->tran.y;
     z = world->tran.z;
 
-    
-
-    
-
     /* horizontal distance (squared) from end effector centerline
         to main column centerline */
     rsq = x*x + y*y;
@@ -184,7 +185,9 @@ int kinematicsInverse(const  EmcPose *world,
     if(cc > 1) cc = 1;
     q1 = acos(cc);
 
-    if (*iflags)
+   // if (*iflags)
+        //q1 = q1;
+    if (*iflags)//(*(haldata -> iflag ))
         q1 = -q1;
 
     /* angle to end effector */
@@ -202,7 +205,7 @@ int kinematicsInverse(const  EmcPose *world,
     q1 = q1 * (180 / PM_PI);
 
     joint[0] = q0;
-    joint[1] = q1;
+    joint[1] = -q1;
     joint[2]= z;
 
     *fflags = 0;
