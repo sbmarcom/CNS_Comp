@@ -8,10 +8,12 @@
 
 #load the GC python script
 	loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
-	net Pierce GC.Pierce# motion.digital-in-00
-	net confirm GC.PreheatConfirmation# motion.digital-in-01 
-    net CutConfirmation spindle.0.at-speed GC.CutConfirmation 
+	net Pierce GC.Pierce  motion.digital-in-00
+	net confirm GC.PreheatConfirmation motion.digital-in-01 
+    net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation 
     net FlameCommandOn spindle.0.on GC.FlameCommandOn 
+	
+
 #load hal input for cn-seamless controller
 #
 #
@@ -25,14 +27,14 @@
 #	
 #	net jog-y-analog input.0.abs-y-position
 #	net jog-x-analog input.0.abs-x-position
-	loadrt remora
-
+	
 
 # estop loopback, SPI comms enable and feedback
 	net user-enable-out 	<= iocontrol.0.user-enable-out		=> remora.SPI-enable
 	net user-request-enable <= iocontrol.0.user-request-enable	=> remora.SPI-reset
 	net remora-status 	<= remora.SPI-status 			=> iocontrol.0.emc-enable-in
 	
+	net iflag proto2kins.iflag remora.enable-pose.0
 
 # add the remora and motion functions to threads
 
@@ -42,37 +44,45 @@
 	addf motion-controller servo-thread
 	addf remora.write servo-thread
 	#write position feedback
-	addf remora.write servo-thread
 
 	
 
-	#setp scarakins.D2 [MACHINE_DIMENSIONS]ARM1_LENGTH
-	#setp scarakins.D4 [MACHINE_DIMENSIONS]ARM2_LENGTH
+
+	setp proto2kins.D2 [MACHINE_DIMENSIONS]ARM1_LENGTH
+	setp proto2kins.D4 [MACHINE_DIMENSIONS]ARM2_LENGTH
+	setp proto2kins.D1 0
+	setp proto2kins.D3 0
+	setp proto2kins.D5 0
+	setp proto2kins.D6 0
+	
 # Joint 0 setup
 
 	setp remora.joint.0.scale 		[JOINT_0]SCALE
 	setp remora.joint.0.maxaccel 	[JOINT_0]STEPGEN_MAXACCEL
+    setp remora.joint.0.home-degs [JOINT_0]HOME_DEGS
 
 	net j0pos-cmd 		<= joint.0.motor-pos-cmd 	=> remora.joint.0.pos-cmd  
 	net j0pos-fb 		<= remora.joint.0.pos-fb 	=> joint.0.motor-pos-fb
-	net j0enable 		<= joint.0.amp-enable-out 	=> remora.joint.0.enable
+	net j0enable 		<= joint.0.amp-enable-out 	=> remora.joint.0.enable# halui.joint.0.home
+	
+	
 
 
 # Joint 1 setup
 
 	setp remora.joint.1.scale 		[JOINT_1]SCALE
 	setp remora.joint.1.maxaccel 	[JOINT_1]STEPGEN_MAXACCEL
-
+    setp remora.joint.1.home-degs [JOINT_1]HOME_DEGS
+	
 	net j1pos-cmd 		<= joint.1.motor-pos-cmd 	=> remora.joint.1.pos-cmd
 	net j1pos-fb 		<= remora.joint.1.pos-fb 	=> joint.1.motor-pos-fb 
-	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable
+	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable # halui.joint.1.home
 
-#
-## Joint 2 setup
-#
-#	setp remora.joint.2.scale 		[JOINT_2]SCALE
-#	setp remora.joint.2.maxaccel 	[JOINT_2]STEPGEN_MAXACCEL
-#
-#	net j2pos-cmd 		<= joint.2.motor-pos-cmd 	=> remora.joint.2.pos-cmd
-#	net j2pos-fb 		<= remora.joint.2.pos-fb 	=> joint.2.motor-pos-fb
-#	net j2enable 		<= joint.2.amp-enable-out 	=> remora.joint.2.enable
+ #Joint 2 setup
+
+	setp remora.joint.2.scale 		[JOINT_2]SCALE
+	setp remora.joint.2.maxaccel 	[JOINT_2]STEPGEN_MAXACCEL
+
+	net j2pos-cmd 		<= joint.2.motor-pos-cmd 	=> remora.joint.2.pos-cmd
+	net j2pos-fb 		<= remora.joint.2.pos-fb 	=> joint.2.motor-pos-fb
+	net j2enable 		<= joint.2.amp-enable-out 	=> remora.joint.2.enable

@@ -41,8 +41,8 @@ c.newpin("ModuleStatus",hal.HAL_U32,hal.HAL_IN) #TBA
 c.newpin("ModulePluggedIn",hal.HAL_BIT,hal.HAL_IN) #TBA
 c.newpin("Pierce",hal.HAL_BIT,hal.HAL_IN)
 c.newpin("PreheatConfirmation",hal.HAL_BIT,hal.HAL_IN)
-c.newpin("FlameCommandOn",hal.HAL_BIT,hal.HAL_IN)
-c.newpin("CutConfirmation", hal.HAL_BIT,hal.HAL_IN)
+c.newpin("FlameCommandOn",hal.HAL_BIT,hal.HAL_IN) #True when M03
+c.newpin("ReadyToCutConfirmation", hal.HAL_BIT,hal.HAL_OUT) #set true when preheat is confirmed
 time.sleep(.1)
 
 
@@ -80,11 +80,11 @@ class module:
         else:
             #print("Encoding as 16 bit unsigned Int")
             DataByteArray = struct.pack('>hh',data,0) #store in big endian format
-        #print(f"Header: {header}, data = {data}")
-        #print(f'Header Binary: {HeaderByte}  Data Binary: {DataByteArray}')
+        print(f"Header: {header}, data = {data}")
+        print(f'Header Binary: {HeaderByte}  Data Binary: {DataByteArray}')
         crc = [0x00]#calculate checksum of the byte array, not implemented yet
         spi.xfer(HeaderByte,9600)
-        print(DataByteArray)
+        #print(DataByteArray)
         spi.xfer(DataByteArray,9600)
         spi.xfer(crc,9600)
         time.sleep(.01)
@@ -101,6 +101,7 @@ class module:
         print("Gas Turned Off Sucessfully")
 
 c.ready()
+c.ReadyToCutConfirmation = False
 Manifold = module()
 Manifold.PluggedIn= True
 Manifold.Initialize()
@@ -123,13 +124,10 @@ while (True):
     if c.FlameCommandOn:
         if c.PreheatConfirmation:
             if c.Pierce:
+                print("Pierce Confirmed")
                 Manifold.CuttingJetCommand = True
-                Manifold.PreheatConfirmed =True
-            elif not Manifold.PreheatConfirmed:
-                print("Waiting for Preheat Confirmation")
         else:
-            print("Turn On Preheat Flame and Confirm")
-            Manifold.PreheatConfirmed = False 
+            Manifold.CuttingJetCommand = False
     else:
         Manifold.CuttingJetCommand = False
         Manifold.PreheatConfirmed =False
@@ -139,12 +137,13 @@ while (True):
     if Manifold.CuttingJetCommand:
         if Manifold.CuttingJetStatus==False:
             Manifold.TurnOnJet()   
-           # print(f"Gas Status {Manifold.CuttingJetStatus}")
-            c.CutConfirmation =True
+            c.ReadyToCutConfirmation = True
+            print(f"Gas Turned On")
             continue
     else:
         if Manifold.CuttingJetStatus==True:
             Manifold.TurnOffJet()
+            c.ReadyToCutConfirmation = False
         
             
                 
