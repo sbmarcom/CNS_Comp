@@ -2,23 +2,22 @@
 # load the realtime components
 
 	loadrt [KINS]KINEMATICS
-	loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+	loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_spindles=[TRAJ]SPINDLES
 	loadrt remora
-
+	loadrt plasmac	
 
 #load the GC python script
-	loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
-	net Pierce GC.Pierce  motion.digital-in-00
-	net confirm GC.PreheatConfirmation motion.digital-in-01 
-    net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation 
-    net FlameCommandOn spindle.0.on GC.FlameCommandOn 
+	#loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
+	#net Pierce GC.Pierce  motion.digital-in-00
+    #net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation #TRUE when manifold sends varification of torch being on
+    #net FlameCommandOn spindle.0.on GC.FlameCommandOn # TRUE when M3 
 	
 
 #load hal input for cn-seamless controller
 #
 #
-#	loadusr -W hal_input -KRAL CN-Seamless
-#	net jog_z_up input.0.btn-x
+	#loadusr -W hal_input -KRAL CN-Seamless
+#	net jog_z_up  input.0.btn-a
 #	net jog_z_down  input.0.btn-y
 #	net feed_up input.0.btn-tl
 ##	net feed_down  input.0.btn-left
@@ -30,11 +29,11 @@
 	
 
 # estop loopback, SPI comms enable and feedback
-	net user-enable-out 	<= iocontrol.0.user-enable-out		=> remora.SPI-enable
+	net user-enable-out 	<= remora.SPI-enable  iocontrol.0.user-enable-out	#	=> remora.SPI-enable
 	net user-request-enable <= iocontrol.0.user-request-enable	=> remora.SPI-reset
-	net remora-status 	<= remora.SPI-status 			=> iocontrol.0.emc-enable-in
+	net remora-status 	<= remora.SPI-status 		=> iocontrol.0.emc-enable-in
 	
-	net iflag proto2kins.iflag remora.enable-pose.0
+	net iflag proto2kins.iflag #remora.enable-pose.0
 
 # add the remora and motion functions to threads
 
@@ -44,7 +43,9 @@
 	addf motion-controller servo-thread
 	addf remora.write servo-thread
 	#write position feedback
+	addf plasmac servo-thread
 
+loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
 	
 
 
@@ -63,7 +64,7 @@
 
 	net j0pos-cmd 		<= joint.0.motor-pos-cmd 	=> remora.joint.0.pos-cmd  
 	net j0pos-fb 		<= remora.joint.0.pos-fb 	=> joint.0.motor-pos-fb
-	net j0enable 		<= joint.0.amp-enable-out 	=> remora.joint.0.enable# halui.joint.0.home
+	net j0enable 		<= joint.0.amp-enable-out 	=> remora.joint.0.enable halui.joint.0.home
 	
 	
 
@@ -76,7 +77,7 @@
 	
 	net j1pos-cmd 		<= joint.1.motor-pos-cmd 	=> remora.joint.1.pos-cmd
 	net j1pos-fb 		<= remora.joint.1.pos-fb 	=> joint.1.motor-pos-fb 
-	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable # halui.joint.1.home
+	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable  halui.joint.1.home
 
  #Joint 2 setup
 

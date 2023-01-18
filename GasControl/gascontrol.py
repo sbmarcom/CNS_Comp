@@ -22,11 +22,13 @@ PacketHeaders = {'kp' : 0x70 , 'ki' : 0x69 , 'kd' : 0x64 , 'Setpoint' : 0x73}
 config = configparser.ConfigParser(strict=False)
 config.read('/homes/pi/linuxcnc/configs/my-mill/my-mill.ini')
 
+#spi = spidev.SpiDev()
+#spi.open(6,0) #spi bus 6, device 0
+#spi.close()
 spi = spidev.SpiDev()
 spi.open(6,0) #spi bus 6, device 0
-spi.close()
-spi = spidev.SpiDev()
-spi.open(6,0) #spi bus 6, device 0
+spi.mode = 0
+spi.max_speed_hz = 50000
 
 try:
     s=linuxcnc.stat()
@@ -39,8 +41,7 @@ except linuxcnc.error:
 c =hal.component('GC')
 c.newpin("ModuleStatus",hal.HAL_U32,hal.HAL_IN) #TBA
 c.newpin("ModulePluggedIn",hal.HAL_BIT,hal.HAL_IN) #TBA
-c.newpin("Pierce",hal.HAL_BIT,hal.HAL_IN)
-c.newpin("PreheatConfirmation",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("Pierce",hal.HAL_BIT,hal.HAL_IN) #true when user verifies material is preheated
 c.newpin("FlameCommandOn",hal.HAL_BIT,hal.HAL_IN) #True when M03
 c.newpin("ReadyToCutConfirmation", hal.HAL_BIT,hal.HAL_OUT) #set true when preheat is confirmed
 time.sleep(.1)
@@ -65,7 +66,8 @@ class module:
         c.ModuleStatus=1
         for p_id, p_info in ParameterDict.items():
             for key in p_info:
-                self.SendParameters(PacketHeaders[key],p_info[key])
+                print("initialized")
+                #self.SendParameters(PacketHeaders[key],p_info[key])
         self.Initialized = True
 
     def DeInit(self):
@@ -73,13 +75,13 @@ class module:
         self.Initialized = False
 
     def SendParameters(self,header, data):
-        HeaderByte =struct.pack('B',header) #pack the header and data into a byte array
-        if(header != 115):
-            DataByteArray = struct.pack('>f',data) #encode big endian 
+        #HeaderByte =[header] #pack the header and data into a byte array
+        #if(header != 115):
+           # DataByteArray = struct.pack('>f',data) #encode big endian 
             #DataByteArray = b'0x00000000'
-        else:
+        #else:
             #print("Encoding as 16 bit unsigned Int")
-            DataByteArray = struct.pack('>hh',data,0) #store in big endian format
+           # DataByteArray = struct.pack('>hh',data,0) #store in big endian format
         print(f"Header: {header}, data = {data}")
         print(f'Header Binary: {HeaderByte}  Data Binary: {DataByteArray}')
         crc = [0x00]#calculate checksum of the byte array, not implemented yet
@@ -93,10 +95,17 @@ class module:
         #breakpoint()
         #print(f"Response from STM8S for header {header} is {x}")
     def TurnOnJet(self):
-        self.SendParameters(PacketHeaders['Setpoint'],ParameterDict['Cutting']['Setpoint'])
+        #self.SendParameters(PacketHeaders['Setpoint'],ParameterDict['Cutting']['Setpoint'])
+        spi.xfer([0x73,0x55,0xFF,0xFF,0xFF,0x00])
+        time.sleep(.01)
+        spi.readbytes(1)
         self.CuttingJetStatus= True
+        c.ReadyToCutConfirmation =True
     def TurnOffJet(self):
-        self.SendParameters(PacketHeaders['Setpoint'],0)
+        #self.SendParameters([0x73],[0x00,0x00,0x00,0x00])
+        spi.xfer([0x73,0x00,0x00,0x00,0x00,0x00])
+        time.sleep(.01)
+        spi.readbytes(1)
         self.CuttingJetStatus= False
         print("Gas Turned Off Sucessfully")
 
@@ -122,22 +131,17 @@ while (True):
         continue
 
     if c.FlameCommandOn:
-        if c.PreheatConfirmation:
-            if c.Pierce:
-                print("Pierce Confirmed")
-                Manifold.CuttingJetCommand = True
-        else:
-            Manifold.CuttingJetCommand = False
+        if c.Pierce:
+            #print("Pierce Confirmed")
+            Manifold.CuttingJetCommand = True
     else:
         Manifold.CuttingJetCommand = False
-        Manifold.PreheatConfirmed =False
 
    # print(f" CuttingJetCommand: {Manifold.CuttingJetCommand}")
 
     if Manifold.CuttingJetCommand:
         if Manifold.CuttingJetStatus==False:
             Manifold.TurnOnJet()   
-            c.ReadyToCutConfirmation = True
             print(f"Gas Turned On")
             continue
     else:

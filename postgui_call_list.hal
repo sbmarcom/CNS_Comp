@@ -9,13 +9,6 @@
 #
 # 1.000 units/sec 60.000 units/min
 
-net confirm  pyvcp.flame
-#net increment  pyvcp.gga
-net Pierce pyvcp.Pierce
+#net confirm  pyvcp.flame
+#net Pierce pyvcp.Pierce
 
-net mf pyvcp.mf
-net pf pyvcp.pf
-net mpo pyvcp.mpo
-net ppo pyvcp.ppo
-net mco pyvcp.mco
-net pco pyvcp.pco

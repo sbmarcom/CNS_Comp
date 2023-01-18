@@ -100,7 +100,7 @@ static int proto2kins_setup(void) {
     res += hal_pin_float_newf(HAL_IN, &(haldata->d4), comp_id,"%s.D4","proto2kins");
     res += hal_pin_float_newf(HAL_IN, &(haldata->d5), comp_id,"%s.D5","proto2kins");
     res += hal_pin_float_newf(HAL_IN, &(haldata->d6), comp_id,"%s.D6","proto2kins");
-    res += hal_pin_bit_newf  (HAL_IN , &(haldata ->iflag), comp_id, "%s.iflag","proto2kins" );
+    res += hal_pin_bit_newf  (HAL_OUT , &(haldata ->iflag), comp_id, "%s.iflag","proto2kins" );
 
     if (res) { goto error; }
 
@@ -142,7 +142,7 @@ int kinematicsForward(const double *joint,
 /* convert joint angles to radians for sin() and cos() */
 
     a0 = joint[0] * ( PM_PI / 180 );
-    a1 = joint[1] * ( PM_PI / 180 )*-1;
+    a1 = joint[1] * -1* ( PM_PI / 180 );
     a2 = joint[2];
 /* convert angles into world coords */
     a1 = a1+ a0;
@@ -151,13 +151,17 @@ int kinematicsForward(const double *joint,
     x = D2*cos(a0) + D4*cos(a1) ;
     y = D2*sin(a0) + D4*sin(a1) ;
 
-    *iflags = 1;
-    //if (joint[1]*-1 > 90)
-     //   *iflags = 1;
-
+    *iflags = 0;
+    *(haldata -> iflag) = 0;
+    if (-1* (joint[1] )< 90)
+    {
+        *iflags = 1;
+        
+         *(haldata -> iflag) = 1;
+}
     world->tran.x = x;
     world->tran.y = y;
-    world->tran.z =a2;
+    world->tran.z =-a2;
 
     return (0);
 } // kinematicsForward()
@@ -205,8 +209,8 @@ int kinematicsInverse(const  EmcPose *world,
     q1 = q1 * (180 / PM_PI);
 
     joint[0] = q0;
-    joint[1] = -q1;
-    joint[2]= z;
+    joint[1] = -1 * q1;
+    joint[2]= -z;
 
     *fflags = 0;
 

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-halcmd sets SP 1
-exit 0
