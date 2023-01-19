@@ -1,2 +1,0 @@
---- QtVCP Screen Started on: Wed, Jan 18 2023 01:42:41 PM ---
-Wed18 13:42: Tool 0: No Tool

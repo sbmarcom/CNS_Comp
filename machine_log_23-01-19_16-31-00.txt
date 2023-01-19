@@ -1,0 +1,5 @@
+--- QtVCP Screen Started on: Thu, Jan 19 2023 04:29:28 PM ---
+Thu19 16:29: Tool 0: No Tool
+Thu19 16:29: Loaded: /home/pi/nc_files/plasmactest.ngc
+Thu19 16:29: Linear move on line 5 would exceed joint 2's negative limit
+Thu19 16:29: invalid params in linear command
