@@ -39,11 +39,13 @@
 
 	#read position feedback
 	addf remora.read servo-thread
+	addf plasmac servo-thread
 	addf motion-command-handler servo-thread
 	addf motion-controller servo-thread
+	
 	addf remora.write servo-thread
 	#write position feedback
-	addf plasmac servo-thread
+	
 
 loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
 	

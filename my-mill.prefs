@@ -112,7 +112,7 @@ THC enable = False
 Corner lock enable = False
 Void lock enable = False
 Use auto volts = False
-Ohmic probe enable = False
+Ohmic probe enable = True
 THC auto = False
 
 [STATISTICS]

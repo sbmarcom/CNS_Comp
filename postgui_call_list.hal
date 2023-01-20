@@ -12,3 +12,4 @@
 #net confirm  pyvcp.flame
 #net Pierce pyvcp.Pierce
 
+net ohmicenable db_ohmic.in

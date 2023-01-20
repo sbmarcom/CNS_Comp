@@ -1,0 +1,5 @@
+--- QtVCP Screen Started on: Fri, Jan 20 2023 11:45:58 AM ---
+Fri20 11:46: Tool 0: No Tool
+Fri20 11:46: joint 0 following error
+Fri20 11:46: joint 1 following error
+Fri20 11:46: command (EMC_TASK_PLAN_EXECUTE) cannot be executed until the machine is out of E-stop and turned on
