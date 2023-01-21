@@ -1,4 +1,0 @@
---- QtVCP Screen Started on: Fri, Jan 20 2023 11:46:44 AM ---
-Fri20 11:46: Tool 0: No Tool
-Fri20 11:50: bottom limit reached while probe testing.
-
