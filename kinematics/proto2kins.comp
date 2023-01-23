@@ -161,7 +161,7 @@ int kinematicsForward(const double *joint,
 }
     world->tran.x = x;
     world->tran.y = y;
-    world->tran.z =-a2;
+    world->tran.z =a2;
 
     return (0);
 } // kinematicsForward()
@@ -210,7 +210,7 @@ int kinematicsInverse(const  EmcPose *world,
 
     joint[0] = q0;
     joint[1] = -1 * q1;
-    joint[2]= -z;
+    joint[2]= z;
 
     *fflags = 0;
 
