@@ -1,0 +1,4 @@
+--- QtVCP Screen Started on: Thu, Jan 26 2023 03:15:46 PM ---
+Thu26 15:15: Tool 0: No Tool
+Thu26 15:19: joint 0 following error
+Thu26 15:19: joint 1 following error

@@ -1,0 +1,41 @@
+--- QtVCP Screen Started on: Thu, Jan 26 2023 03:19:45 PM ---
+Thu26 15:19: Tool 0: No Tool
+Thu26 15:21: must be in joint mode to home
+Thu26 15:21: must be in joint mode to home
+Thu26 15:21: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:21: command (EMC_JOINT_HOME) cannot be executed until the machine is out of E-stop and turned on
+Thu26 15:21: joint 0 following error
+Thu26 15:21: joint 1 following error
+Thu26 15:21: command (EMC_JOINT_HOME) cannot be executed until the machine is out of E-stop and turned on
+Thu26 15:22: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:22: must be in joint mode to home
+Thu26 15:22: must be in joint mode to home
+Thu26 15:22: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:22: must be in joint mode to home
+Thu26 15:22: must be in joint mode to home
+Thu26 15:22: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:22: must be in joint mode to home
+Thu26 15:22: must be in joint mode to home
+Thu26 15:24: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:24: joint 0 following error
+Thu26 15:24: joint 1 following error
+Thu26 15:25: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:25: joint 0 following error
+Thu26 15:25: joint 1 following error
+Thu26 15:25: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:25: joint 0 following error
+Thu26 15:25: joint 1 following error
+Thu26 15:25: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:25: joint 0 following error
+Thu26 15:25: joint 1 following error
+Thu26 15:26: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:26: command (EMC_JOINT_HOME) cannot be executed until the machine is out of E-stop and turned on
+Thu26 15:26: joint 0 following error
+Thu26 15:26: joint 1 following error
+Thu26 15:26: command (EMC_JOINT_HOME) cannot be executed until the machine is out of E-stop and turned on
+Thu26 15:26: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:26: must be in joint mode to home
+Thu26 15:26: must be in joint mode to home
+Thu26 15:27: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
+Thu26 15:27: joint 0 following error
+Thu26 15:27: joint 1 following error

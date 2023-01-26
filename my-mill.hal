@@ -34,7 +34,7 @@
 	net user-request-enable <= iocontrol.0.user-request-enable	=> remora.SPI-reset
 	net remora-status 	<= remora.SPI-status 		=> iocontrol.0.emc-enable-in
 	
-	net iflag proto2kins.iflag #remora.enable-pose.0
+	net iflag proto2kins.iflag remora.enable-pose.0
 
 # add the remora and motion functions to threads
 
