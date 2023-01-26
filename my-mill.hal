@@ -5,18 +5,19 @@
 	loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_spindles=[TRAJ]SPINDLES
 	loadrt remora
 	loadrt plasmac	
+    loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
 
 #load the GC python script
-	#loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
-	#net Pierce GC.Pierce  motion.digital-in-00
-    #net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation #TRUE when manifold sends varification of torch being on
-    #net FlameCommandOn spindle.0.on GC.FlameCommandOn # TRUE when M3 
-	
+	loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
+	net Pierce GC.Pierce  motion.digital-in-00
+    net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation #TRUE when manifold sends varification of torch being on
+    net plasmac:cutting-start spindle.0.on GC.FlameCommandOn # TRUE when M3 
+	net ProbeReturn db_ohmic.in GC.ProbeDetected
 
 #load hal input for cn-seamless controller
 #
 #
-	#loadusr -W hal_input -KRAL CN-Seamless
+	#loadusr -W hal_input -KRA  CNSeamless 
 #	net jog_z_up  input.0.btn-a
 #	net jog_z_down  input.0.btn-y
 #	net feed_up input.0.btn-tl
@@ -26,7 +27,7 @@
 #	
 #	net jog-y-analog input.0.abs-y-position
 #	net jog-x-analog input.0.abs-x-position
-	
+
 
 # estop loopback, SPI comms enable and feedback
 	net user-enable-out 	<= remora.SPI-enable  iocontrol.0.user-enable-out	#	=> remora.SPI-enable
@@ -42,14 +43,10 @@
 	addf plasmac servo-thread
 	addf motion-command-handler servo-thread
 	addf motion-controller servo-thread
-	
 	addf remora.write servo-thread
+	addf db_ohmic servo-thread
+
 	#write position feedback
-	
-
-loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
-	
-
 
 	setp proto2kins.D2 [MACHINE_DIMENSIONS]ARM1_LENGTH
 	setp proto2kins.D4 [MACHINE_DIMENSIONS]ARM2_LENGTH
@@ -59,6 +56,7 @@ loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
 	setp proto2kins.D6 0
 	
 # Joint 0 setup
+	net plasmac:axis-position joint.2.pos-fb => plasmac.axis-z-position
 
 	setp remora.joint.0.scale 		[JOINT_0]SCALE
 	setp remora.joint.0.maxaccel 	[JOINT_0]STEPGEN_MAXACCEL

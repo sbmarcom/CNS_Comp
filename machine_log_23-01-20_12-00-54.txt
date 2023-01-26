@@ -1,7 +1,0 @@
---- QtVCP Screen Started on: Fri, Jan 20 2023 11:59:25 AM ---
-Fri20 11:59: Tool 0: No Tool
-Fri20 12:00: bottom limit reached while probe testing.
-
-Fri20 12:00: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
-Fri20 12:00: must be in joint mode to home
-Fri20 12:00: must be in joint mode to home

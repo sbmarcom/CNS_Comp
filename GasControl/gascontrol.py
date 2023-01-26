@@ -44,6 +44,7 @@ c.newpin("ModulePluggedIn",hal.HAL_BIT,hal.HAL_IN) #TBA
 c.newpin("Pierce",hal.HAL_BIT,hal.HAL_IN) #true when user verifies material is preheated
 c.newpin("FlameCommandOn",hal.HAL_BIT,hal.HAL_IN) #True when M03
 c.newpin("ReadyToCutConfirmation", hal.HAL_BIT,hal.HAL_OUT) #set true when preheat is confirmed
+c.newpin("ProbeDetected", hal.HAL_BIT,hal.HAL_OUT)
 time.sleep(.1)
 
 
@@ -98,18 +99,37 @@ class module:
         #self.SendParameters(PacketHeaders['Setpoint'],ParameterDict['Cutting']['Setpoint'])
         spi.xfer([0x73,0x55,0xFF,0xFF,0xFF,0x00])
         time.sleep(.01)
-        spi.readbytes(1)
+        t = spi.xfer([0xAB])
         self.CuttingJetStatus= True
         c.ReadyToCutConfirmation =True
     def TurnOffJet(self):
         #self.SendParameters([0x73],[0x00,0x00,0x00,0x00])
         spi.xfer([0x73,0x00,0x00,0x00,0x00,0x00])
         time.sleep(.01)
-        spi.readbytes(1)
+        t = spi.xfer([0xAB])
         self.CuttingJetStatus= False
         print("Gas Turned Off Sucessfully")
+    def Probe(self):
+        f=spi.xfer([0x76,0x00,0x50,0x00,0x00,0x00])
+        a = spi.xfer([0x78,0x00,0x05,0x00,0x00,0x00])
+        time.sleep(0.01)
+        a=spi.xfer([0x75,0x01,0x00,0x00,0x00,0x00])
+        time.sleep(.01)
+        t = spi.xfer([0xAB])
+        BottomedOut = spi.xfer([0xAB])
+        print("BottomedOut")
+        print(BottomedOut)
+        while  BottomedOut[0]!=1 :
+            time.sleep(.1)
+            BottomedOut = spi.xfer([0xAB])
+        a = spi.xfer([0x75,0x00,0x00,0x00,0x00,0x00])
+        b = spi.xfer([0x73,0,0,0,0,0])
+        c.ProbeDetected = 1
+        time.sleep(.1)
+        c.ProbeDetected = 0
 
 c.ready()
+c.ProbeDetected = False
 c.ReadyToCutConfirmation = False
 Manifold = module()
 Manifold.PluggedIn= True
@@ -138,7 +158,8 @@ while (True):
         Manifold.CuttingJetCommand = False
 
    # print(f" CuttingJetCommand: {Manifold.CuttingJetCommand}")
-
+    if hal.get_value("plasmac.ohmic-enable"):
+        Manifold.Probe()
     if Manifold.CuttingJetCommand:
         if Manifold.CuttingJetStatus==False:
             Manifold.TurnOnJet()   

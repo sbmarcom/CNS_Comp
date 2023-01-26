@@ -1,6 +1,0 @@
---- QtVCP Screen Started on: Sat, Jan 21 2023 09:29:01 AM ---
-Sat21 09:29: Tool 0: No Tool
-Sat21 09:43: Loaded: /home/pi/nc_files/plasmactest.ngc
-Sat21 09:44: Loaded: /home/pi/nc_files/plasmactest.ngc
-Sat21 09:44: Loaded: /home/pi/nc_files/plasmactest.ngc
-Sat21 09:44: Loaded: /home/pi/nc_files/plasmactest.ngc
