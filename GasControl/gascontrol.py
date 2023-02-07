@@ -117,14 +117,14 @@ class module:
         time.sleep(.01)
         t = spi.xfer([0xAB])
         BottomedOut = spi.xfer([0xAB])
-        print("BottomedOut")
-        print(BottomedOut)
-        while  BottomedOut[0]!=1 :
+        while  (BottomedOut[0]!=1 and hal.get_value("plasmac.ohmic-enable") ):
             time.sleep(.1)
             BottomedOut = spi.xfer([0xAB])
+
         a = spi.xfer([0x75,0x00,0x00,0x00,0x00,0x00])
         b = spi.xfer([0x73,0,0,0,0,0])
-        c.ProbeDetected = 1
+        if BottomedOut ==1:
+            c.ProbeDetected = 1
         time.sleep(.1)
         c.ProbeDetected = 0
 
@@ -158,11 +158,12 @@ while (True):
         Manifold.CuttingJetCommand = False
 
    # print(f" CuttingJetCommand: {Manifold.CuttingJetCommand}")
-    if hal.get_value("plasmac.ohmic-enable"):
-        Manifold.Probe()
+#    if hal.get_value("plasmac.ohmic-enable"):
+ #       Manifold.Probe()
     if Manifold.CuttingJetCommand:
         if Manifold.CuttingJetStatus==False:
-            Manifold.TurnOnJet()   
+            Manifold.TurnOnJet()  
+         
             print(f"Gas Turned On")
             continue
     else:

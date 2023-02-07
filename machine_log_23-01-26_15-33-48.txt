@@ -1,5 +1,0 @@
---- QtVCP Screen Started on: Thu, Jan 26 2023 03:28:05 PM ---
-Thu26 15:28: Tool 0: No Tool
-Thu26 15:28: Note: Motion enabled after reaching a coordinate soft limit with active external offsets
-Thu26 15:28: joint 0 following error
-Thu26 15:28: joint 1 following error

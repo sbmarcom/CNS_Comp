@@ -11,6 +11,7 @@
 
 #net confirm  pyvcp.flame
 #net Pierce pyvcp.Pierce
-
+  
 #net ohmicenable qtplasmac.manual_probe_set db_ohmic.in 
 
+net OhmicProbeOut or2.0.out db_ohmic.in

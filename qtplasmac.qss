@@ -1,6 +1,6 @@
 /****** DEFAULT ************/
 * {
-    color: #ffee06;
+    color: #73abff;
     background: #16160e;
     font: 10pt DejaVuSans;
     outline: none }
@@ -22,7 +22,7 @@
 #gui_frame, #materials_frame, #camview_frame,
 #conv_frame, #stats_frame, #pmx_stats_frame,
 #machinelog_frame, #ub_frame, #sd_frame {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     background: #16160e;
     border-radius: 4px }
 
@@ -39,7 +39,7 @@
 #camview_label, #conv_label, #stats_label,
 #pmx_stats_label, #machinelog_label {
     color: #16160e;
-    background: #ffee06;
+    background: #73abff;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px }
 
@@ -55,22 +55,22 @@ QToolTip {
 /****** MATERIAL LABEL ************/
 #material_label{
     color: #16160e;
-    background: #ffee06;
+    background: #73abff;
     border-top-left-radius: 2px }
 
 /****** VELOCITY LABELS ************/
 #velocity_label{
     color: #16160e;
-    background: #ffee06 }
+    background: #73abff }
 
 #velocity_show {
     color: #16160e;
-    background: #ffee06;
+    background: #73abff;
     border-top-right-radius: 2px }
 
 /****** QLINEEDITS ************/
 QLineEdit {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     height: 24px }
 
@@ -79,17 +79,17 @@ QFileDialog {
     min-width: 686 }
 
 QFileDialog QListView {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px }
 
 QDialog {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     margin: 4px }
 
 QDialog QHeaderView::section {
     background: #16160e;
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     font: italic;
     margin: 1;
@@ -100,7 +100,7 @@ QDialog QListView {
     font: 11pt }
 
 QDialog QTreeView {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     font: 11pt;
     alternate-background-color: #36362e;
@@ -111,11 +111,11 @@ QDialog QTreeView::item {
 
 QDialog QTreeView::item:selected:active {
     color: #16160e;
-    background-color: #ffee06 }
+    background-color: #73abff }
 
 QDialog QTreeView::item:selected:!active {
     color: #16160e;
-    background-color: #ffee06 }
+    background-color: #73abff }
 
 QDialog QLabel {
     font: 11pt }
@@ -127,7 +127,7 @@ QDialog QPushButton {
     margin: 4 }
 
 QDialog QLineEdit {
-    selection-color: #ffee06;
+    selection-color: #73abff;
     selection-background-color: #16160e;
     font: 11pt;
     height: 30px }
@@ -141,19 +141,19 @@ QDialog QDoubleSpinBox {
 
 /****** BUTTON ************/
 QPushButton, QToolButton {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px }
 
 QPushButton:pressed, QToolButton:pressed {
     color: #16160e;
-    background: #ffee06 }
+    background: #73abff }
 
 QPushButton:checked, QToolButton:checked {
     color: #16160e;
-    background: #ffee06 }
+    background: #73abff }
 
 QPushButton:checked:pressed, QToolButton:checked:pressed {
-    color: #ffee06;
+    color: #73abff;
     background: #16160e }
 
 /****** RESET BUTTONS ************/
@@ -163,7 +163,7 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 
 #feed_label:pressed, #rapid_label:pressed,
 #jogs_label:pressed, #height_reset:pressed {
-    color: #ffee06;
+    color: #73abff;
     background: #16160e }
 
 /****** ESTOP BUTTON ************/
@@ -171,8 +171,8 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #estop:checked:pressed,
 #estop:disabled {
     color: #16160e;
-    background: #ffee06;
-    border-color: #ffee06 }
+    background: #73abff;
+    border-color: #73abff }
 
 #estop:pressed,
 #estop:checked,
@@ -228,7 +228,7 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #file_clear, #ub_save, #sd_save,
 #save_plasma, #save_material {
     color: #16160e;
-    background: #ffee06;
+    background: #73abff;
     border: none;
     border-top-left-radius: 2px;
     border-top-right-radius: 0px;
@@ -243,7 +243,7 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #file_clear:pressed, #ub_save:pressed,
 #sd_save:pressed, #save_plasma:pressed,
 #save_material:pressed {
-    color: #ffee06;
+    color: #73abff;
     background: #16160e }
 
 /* CENTER */
@@ -251,7 +251,7 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #materials_label, #new_material,
 #delete_material, #config_label {
     color: #16160e;
-    background: #ffee06;
+    background: #73abff;
     border: none;
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
@@ -264,14 +264,14 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 
 #file_open:pressed, #materials_label:pressed,
 #new_material:pressed, #delete_material:pressed {
-    color: #ffee06;
+    color: #73abff;
     background: #16160e }
 
 /* RIGHT */
 #file_reload, #ub_reload, #sd_reload,
 #reload_plasma, #reload_material {
     color: #16160e;
-    background: #ffee06;
+    background: #73abff;
     border: none;
     border-top-left-radius: 0px;
     border-top-right-radius: 2px;
@@ -286,13 +286,13 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #file_reload:pressed, #up_reload:pressed,
 #sd_reload:pressed, #reload_plasma:pressed,
 #reload_material:pressed {
-    color: #ffee06;
+    color: #73abff;
     background: #16160e }
 
 /****** DRO DISPLAY<<<<<<<<<<<<*/
 DROLabel {
-    color: #ffee06;
-    border: 1px solid #ffee06;
+    color: #73abff;
+    border: 1px solid #73abff;
     border-radius: 4px;
     font: 20pt 'DejaVuSans' }
 
@@ -307,8 +307,8 @@ DROLabel[homed=false] {
 #dro_label_a,
 #dro_label_b {
     color: #16160e;
-    background: #ffee06;
-    border: 1px solid #ffee06;
+    background: #73abff;
+    border: 1px solid #73abff;
     border-radius: 4px;
     font: 20pt 'DejaVuSans' }
 
@@ -322,14 +322,14 @@ DROLabel[homed=false] {
 
 /****** ARC VOLTAGE ************/
 #arc_voltage {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4;
     margin: 0 0 0 0;
     font: 32pt }
 
 /****** RADIO BUTTON ************/
 QRadioButton {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4 }
 
 QRadioButton::indicator {
@@ -338,11 +338,11 @@ QRadioButton::indicator {
 
 QRadioButton:checked {
     color: #16160e;
-    background: #ffee06 }
+    background: #73abff }
 
 QRadioButton:pressed {
     color: #16160e;
-    background: #ffee06 }
+    background: #73abff }
 
 /****** SETTINGS PUSHBUTTONS ************/
 #color_foregrnd, #color_foregalt,
@@ -364,13 +364,13 @@ QCheckBox {
     spacing: 0px }
 
 QCheckBox::indicator {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     width: 26px;
     height: 26px }
 
 QCheckBox::indicator:pressed {
-    background: #ffee06 }
+    background: #73abff }
 
 QCheckBox::indicator:disabled {
 border-color: #b0b0b0 }
@@ -379,7 +379,7 @@ QCheckBox::indicator:disabled:checked {
 background: #b0b0b0 }
 
 QCheckBox::indicator:checked {
-    background: #ffee06 }
+    background: #73abff }
 
 QCheckBox::indicator:checked:pressed {
     background: #16160e }
@@ -402,7 +402,7 @@ QCheckBox::indicator:checked:pressed {
 #thc_auto::indicator,
 #thc_enable::indicator {
     background: #16160e;
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     width: 22px;
     height: 22px }
@@ -417,8 +417,8 @@ QCheckBox::indicator:checked:pressed {
 #pmx485_enable::indicator:checked,
 #thc_auto::indicator:checked,
 #thc_enable::indicator:checked {
-    background: #ffee06;
-    border-color: #ffee06 }
+    background: #73abff;
+    border-color: #73abff }
 
 #torch_enable::indicator:!checked,
 #cornerlock_enable::indicator:!checked,
@@ -431,7 +431,7 @@ QCheckBox::indicator:checked:pressed {
 #thc_auto::indicator:!checked,
 #thc_enable::indicator:!checked {
     background: #16160e;
-    border-color: #ffee06 }
+    border-color: #73abff }
 
 #torch_enable::indicator:pressed,
 #cornerlock_enable::indicator:pressed,
@@ -443,7 +443,7 @@ QCheckBox::indicator:checked:pressed {
 #pmx485_enable::indicator:pressed,
 #thc_auto::indicator:pressed,
 #thc_enable::indicator:pressed {
-    background: #ffee06 }
+    background: #73abff }
 
 #torch_enable::indicator:checked:pressed,
 #cornerlock_enable::indicator:checked:pressed,
@@ -461,13 +461,13 @@ QCheckBox::indicator:checked:pressed {
 QSpinBox,
 QDoubleSpinBox {
     background: #36362e;
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 2px;
     height: 24px;
     width: 180px;
     font: 11pt;
     selection-color: #16160e;
-    selection-background-color: #ffee06 }
+    selection-background-color: #73abff }
 
 QDoubleSpinBox::up-button {
     subcontrol-origin:padding;
@@ -488,14 +488,14 @@ QSlider::groove:vertical {
     width: 20px }
 
 QSlider::handle:vertical {
-    background: #ffee06;
-    border: 0px solid #ffee06;
+    background: #73abff;
+    border: 0px solid #73abff;
     border-radius: 4px;
     height: 24px }
 
 QSlider::add-page:vertical {
-    background: #ffee06;
-    border: 1px solid #ffee06;
+    background: #73abff;
+    border: 1px solid #73abff;
     border-radius: 4px;
     width: 20px }
 
@@ -516,7 +516,7 @@ QSlider::groove:vertical:disabled {
 
 /****** COMBO BOX ************/
 QComboBox {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     padding-left: 6px }
 
@@ -525,7 +525,7 @@ QComboBox#jogincrements {
 
 QComboBox#material_selector {
     color: #16160e;
-    background: #ffee06;
+    background: #73abff;
     border: none;
     border-radius: 0;
     height: 16px;
@@ -536,17 +536,17 @@ QComboBox::drop-down {
     image: none }
 
 QComboBox QAbstractItemView {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4;
     padding: 20 4 20 4 }
 
 QComboBox::item:selected {
     color: #16160e;
-    background-color: #ffee06;
+    background-color: #73abff;
     margin-left: 0 }
 
 QComboBox::item:!selected {
-    color: #ffee06;
+    color: #73abff;
     background-color: #16160e }
 
 QComboBox::indicator {
@@ -562,7 +562,7 @@ QComboBox::indicator {
 /****** FILEMANAGER ************/
 QHeaderView::section {
     background: #16160e;
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     font-size: 11pt;
     font: italic;
@@ -570,7 +570,7 @@ QHeaderView::section {
     padding-top: 5 }
 
 #filemanager QTableView {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     font: 11pt 'DejaVuSans';
     alternate-background-color: #36362e;
@@ -578,11 +578,11 @@ QHeaderView::section {
 
 #filemanager QTableView::item:selected:active {
     color: #16160e;
-    background-color: #ffee06 }
+    background-color: #73abff }
 
 #filemanager QTableView::item:selected:!active {
     color: #16160e;
-    background-color: #ffee06 }
+    background-color: #73abff }
 
 #filemanager QComboBox {
     height: 40px;
@@ -606,7 +606,7 @@ QHeaderView::section {
 
 #originoffsetview {
     font: 11pt 'DejaVuSans';
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     alternate-background-color: #16160e;
     padding: 2px;
@@ -617,15 +617,15 @@ QHeaderView::section {
 
 #originoffsetview::item:selected:active {
     color: #16160e;
-    background-color: #ffee06 }
+    background-color: #73abff }
 
 #originoffsetview::item:selected:!active {
     color: #16160e;
-    background-color: #ffee06 }
+    background-color: #73abff }
 
 /****** MDI HISTORY************/
 #mdihistory QListView {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     font: 11pt 'DejaVuSans';
     alternate-background-color: #36362e;
@@ -636,10 +636,10 @@ QHeaderView::section {
 
 #mdihistory QListView::item:selected {
     color: #16160e;
-    background-color: #ffee06 }
+    background-color: #73abff }
 
 #mdihistory QLineEdit {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     height: 30px;
     font: 11pt }
@@ -653,8 +653,8 @@ QScrollBar:horizontal {
     height: 20px }
 
 QScrollBar::handle:horizontal {
-    background: #ffee06;
-    border: 2px solid #ffee06;
+    background: #73abff;
+    border: 2px solid #73abff;
     border-radius: 4px;
     margin: 2px;
     min-width: 40px }
@@ -673,8 +673,8 @@ QScrollBar:vertical {
     width: 20px }
 
 QScrollBar::handle:vertical {
-    background: #ffee06;
-    border: 2px solid #ffee06;
+    background: #73abff;
+    border: 2px solid #73abff;
     border-radius: 4px;
     margin: 2px;
     min-height: 40px }
@@ -691,9 +691,9 @@ QMenu {
     margin: 0 16 0 16 }
 
 QMenu::item {
-    color: #ffee06;
+    color: #73abff;
     background: #16160e;
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     padding: 8 0 8 8;
     margin: 8 0 8 0;
@@ -714,7 +714,7 @@ QTabWidget::tab-bar {
     min-width:6000 }
 
 QTabBar::tab {
-    border: 1px    solid #ffee06;
+    border: 1px    solid #73abff;
     border-radius: 4px;
     padding: 1px;
     margin-left: 1;
@@ -722,7 +722,7 @@ QTabBar::tab {
 
 QTabBar::tab:selected {
     color: #16160e;
-    background: #ffee06 }
+    background: #73abff }
 
 /****** STATUS BAR ************/
 QStatusBar {
@@ -732,14 +732,14 @@ QStatusBar::item {
     image: none }
 
 QProgressBar {
-    color: #ffee06;
+    color: #73abff;
     background: #36362e;
     border: 0px;
     border-radius: 4px;
     max-width: 20px; }
 
 QProgressBar::chunk {
-    background-color: #ffee06;
+    background-color: #73abff;
     height: 1px;
     margin: 0.5px }
 
@@ -752,7 +752,7 @@ LED {
 
 /****** TEXT ENTRY ************/
 QPlainTextEdit {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px }
 
 /****** GCODE GRAPHICS ************/
@@ -769,15 +769,15 @@ EditorBase#lexer {
 
 EditorBase {
     qproperty-styleColorBackground: #16160e;
-    qproperty-styleColor0: #ffee06;
-    qproperty-styleColor1: #ffee06;
-    qproperty-styleColor2: #ffee06;
-    qproperty-styleColor3: #ffee06;
-    qproperty-styleColor4: #ffee06;
-    qproperty-styleColor5: #ffee06;
-    qproperty-styleColor6: #ffee06;
-    qproperty-styleColor7: #ffee06;
-    qproperty-styleColorMarginText: #ffee06;
+    qproperty-styleColor0: #73abff;
+    qproperty-styleColor1: #73abff;
+    qproperty-styleColor2: #73abff;
+    qproperty-styleColor3: #73abff;
+    qproperty-styleColor4: #73abff;
+    qproperty-styleColor5: #73abff;
+    qproperty-styleColor6: #73abff;
+    qproperty-styleColor7: #73abff;
+    qproperty-styleColorMarginText: #73abff;
     qproperty-styleColorMarginBackground: #16160e;
     qproperty-styleFont0: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
     qproperty-styleFont1: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
@@ -788,19 +788,19 @@ EditorBase {
     qproperty-styleFont6: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
     qproperty-styleFont7: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
     qproperty-styleColorSelectionText: #16160e;
-    qproperty-styleColorSelectionBackground: #ffee06 }
+    qproperty-styleColorSelectionBackground: #73abff }
 
 #gcode_display {
-    qproperty-styleColorSelectionText: #ffee06;
+    qproperty-styleColorSelectionText: #73abff;
     qproperty-styleColorSelectionBackground: transparent }
 
 #gcode_editorTopButtonFrame {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     margin: 2 4 0 4 }
 
 #gcode_editorBottomButtonFrame {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     margin: 0 4 0 4 }
 
@@ -815,14 +815,14 @@ EditorBase {
     height: 37px }
 
 #gcode_editor QLineEdit {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     width: 94px;
     height: 40px }
 
 /****** MESSAGE BOX ************/
 QMessageBox{
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     margin: 2 }
 
@@ -836,7 +836,7 @@ QMessageBox QPushButton {
 
 /****** INPUT DIALOG ************/
 QInputDialog{
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     margin: 2 }
 
@@ -845,7 +845,7 @@ QInputDialog QLabel{
 
 QInputDialog QLineEdit{
     background: #36362e;
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     font: 11pt }
 
@@ -856,7 +856,7 @@ QInputDialog QPushButton {
 
 /****** CALCULATOR ************/
 Calculator {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     margin: 2px }
 
@@ -864,7 +864,7 @@ Calculator QPushButton {
     height: 40 }
 
 Calculator QLineEdit {
-    border: 1px solid #ffee06;
+    border: 1px solid #73abff;
     border-radius: 4px;
     font: 20pt }
 

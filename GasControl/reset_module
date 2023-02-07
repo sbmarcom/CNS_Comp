@@ -3,3 +3,8 @@
 raspi-gpio set 12 op dh
 sleep .01
 raspi-gpio set 12 op dl
+raspi-gpio set 17 op dh
+raspi-gpio set 1 op dl
+raspi-gpio set 6 ip pd
+sleep 0.1
+raspi-gpio set 1 ip pu

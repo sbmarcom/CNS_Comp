@@ -6,14 +6,16 @@
 	loadrt remora
 	loadrt plasmac	
     loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
-
+	loadrt or2 count=3
+	setp plasmac.debug-print 1
 #load the GC python script
 	loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
-	net Pierce GC.Pierce  motion.digital-in-00
-    net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation #TRUE when manifold sends varification of torch being on
+	net Pierce GC.Pierce motion.digital-in-00 or2.1.out
+    net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation plasmac.spindle-at-speed#TRUE when manifold sends verification of torch being on
     net plasmac:cutting-start spindle.0.on GC.FlameCommandOn # TRUE when M3 
-	net ProbeReturn db_ohmic.in GC.ProbeDetected
-
+	net ProbeReturn or2.0.in0 GC.ProbeDetected
+	net fucked or2.2.out or2.0.in1
+	
 #load hal input for cn-seamless controller
 #
 #
@@ -27,8 +29,8 @@
 #	
 #	net jog-y-analog input.0.abs-y-position
 #	net jog-x-analog input.0.abs-x-position
-
-
+	
+	
 # estop loopback, SPI comms enable and feedback
 	net user-enable-out 	<= remora.SPI-enable  iocontrol.0.user-enable-out	#	=> remora.SPI-enable
 	net user-request-enable <= iocontrol.0.user-request-enable	=> remora.SPI-reset
@@ -45,7 +47,9 @@
 	addf motion-controller servo-thread
 	addf remora.write servo-thread
 	addf db_ohmic servo-thread
-
+	addf or2.0 base-thread
+	addf or2.1 base-thread
+	addf or2.2 base-thread
 	#write position feedback
 
 	setp proto2kins.D2 [MACHINE_DIMENSIONS]ARM1_LENGTH
@@ -64,7 +68,7 @@
 
 	net j0pos-cmd 		<= joint.0.motor-pos-cmd 	=> remora.joint.0.pos-cmd  
 	net j0pos-fb 		<= remora.joint.0.pos-fb 	=> joint.0.motor-pos-fb
-	net j0enable 		<= joint.0.amp-enable-out 	=> remora.joint.0.enable halui.joint.0.home
+	net j0enable 		<= joint.0.amp-enable-out 	=> remora.joint.0.enable# halui.joint.0.home
 	
 	
 
@@ -77,7 +81,7 @@
 	
 	net j1pos-cmd 		<= joint.1.motor-pos-cmd 	=> remora.joint.1.pos-cmd
 	net j1pos-fb 		<= remora.joint.1.pos-fb 	=> joint.1.motor-pos-fb 
-	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable  halui.joint.1.home
+	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable # halui.joint.1.home
 
  #Joint 2 setup
 

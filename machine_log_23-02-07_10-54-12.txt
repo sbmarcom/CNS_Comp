@@ -1,0 +1,3 @@
+--- QtVCP Screen Started on: Tue, Feb 07 2023 10:48:06 AM ---
+Tue07 10:48: Tool 0: No Tool
+Tue07 10:50: Loaded: /home/pi/nc_files/SIC27.nc
