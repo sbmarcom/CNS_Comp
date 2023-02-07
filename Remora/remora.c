@@ -105,10 +105,7 @@ typedef union
 	uint8_t header;
 	uint8_t jointEnable;
     int32_t jointPosCmd[JOINTS];// Not implemented on STM32 yet
-    //uint32_t setPoint[VARIABLES];
-	
-	//uint16_t outputs;
-    //uint8_t spare0;
+    uint8_t digital_outputs;
   };
 } txData_t;
 
@@ -127,8 +124,7 @@ typedef union
     uint8_t header;
 	uint8_t joint_enable;
     uint32_t jointFeedback[JOINTS];
-    //float 	processVariable[VARIABLES];
-    //uint16_t inputs;
+    uint8_t digital_inputs;
   };
 } rxData_t;
 
