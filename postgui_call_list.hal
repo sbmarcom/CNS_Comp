@@ -9,7 +9,11 @@
 #
 # 1.000 units/sec 60.000 units/min
 
+#loadusr ~/cn-seamless/homepy.py
+
+
 #net confirm  pyvcp.flame
+
 #net Pierce pyvcp.Pierce
   
 #net ohmicenable qtplasmac.manual_probe_set db_ohmic.in 

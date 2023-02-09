@@ -641,22 +641,23 @@ void spi_read()
 		
 		//*(data->pos_fb[i]) = (float)(rxData.jointFeedback[i] / data->pos_scale[i]);
 	}
-*(data->pos_fb[1])= -1* (*(data->pos_fb[1]));
-*(data->pos_fb[2])= (float)((rxData.jointFeedback[2])/(data->pos_scale[2]));
+	*(data->pos_fb[1])= -1* (*(data->pos_fb[1]));
+	*(data->pos_fb[2])= (float)((rxData.jointFeedback[2])/(data->pos_scale[2]));
 
+	if (*(data -> stepperEnable[0]) != old_enable_status){
 
+		if(*(data ->pos_fb[1]) < 0){
+			*(data ->pose_at_enable) =1;
+		}
+		else{
+			*(data ->pose_at_enable) =0;
+		}
 
-if (*(data -> stepperEnable[0]) != old_enable_status){
-
-	if(*(data ->pos_fb[1]) < 0){
-		*(data ->pose_at_enable) =1;
+		old_enable_status = *(data ->stepperEnable[0]);
 	}
-else{
-	*(data ->pose_at_enable) =0;
-}
-
-	old_enable_status = *(data ->stepperEnable[0]);
-}
+	
+	// Read Digital inputs at end of packet
+	*(data->inputs[0]) = rxData.digital_inputs ;
 
 }
 

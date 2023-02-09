@@ -9,7 +9,7 @@ import linuxcnc
 import struct
 import os
 
-os.system('bash ~/cn-seamless/GasControl/reset_module')
+os.system('bash ~/cn-seamless/GasControl/reset_module_and_STM32')
 
 ParameterDict = {
     'Cutting' : {'Setpoint' : 100,'kp' : 1 , 'ki' : 1 , 'kd' :0  }
@@ -83,8 +83,8 @@ class module:
         #else:
             #print("Encoding as 16 bit unsigned Int")
            # DataByteArray = struct.pack('>hh',data,0) #store in big endian format
-        print(f"Header: {header}, data = {data}")
-        print(f'Header Binary: {HeaderByte}  Data Binary: {DataByteArray}')
+        #print(f"Header: {header}, data = {data}")
+        #print(f'Header Binary: {HeaderByte}  Data Binary: {DataByteArray}')
         crc = [0x00]#calculate checksum of the byte array, not implemented yet
         spi.xfer(HeaderByte,9600)
         #print(DataByteArray)
@@ -110,22 +110,30 @@ class module:
         self.CuttingJetStatus= False
         print("Gas Turned Off Sucessfully")
     def Probe(self):
-        f=spi.xfer([0x76,0x00,0x50,0x00,0x00,0x00])
-        a = spi.xfer([0x78,0x00,0x05,0x00,0x00,0x00])
-        time.sleep(0.01)
+        f= spi.xfer([0xAB])
+        time.sleep(0.1)
+        f= spi.xfer([0xAB])
+        time.sleep(0.1)
+        f=spi.xfer([0x76,0x04,0x52,0x00,0x00,0x00])
+        time.sleep(0.1)
+        a = spi.xfer([0x78,0x00,0x20,0x00,0x00,0x00])
+        time.sleep(0.1)
         a=spi.xfer([0x75,0x01,0x00,0x00,0x00,0x00])
         time.sleep(.01)
-        t = spi.xfer([0xAB])
-        BottomedOut = spi.xfer([0xAB])
+        #t = spi.xfer([0xAB])
+        BottomedOut = [0]
         while  (BottomedOut[0]!=1 and hal.get_value("plasmac.ohmic-enable") ):
-            time.sleep(.1)
+            time.sleep(.01)
+            
             BottomedOut = spi.xfer([0xAB])
-
+        print("Probe Activated")
         a = spi.xfer([0x75,0x00,0x00,0x00,0x00,0x00])
+        time.sleep(0.01)
         b = spi.xfer([0x73,0,0,0,0,0])
-        if BottomedOut ==1:
+        if BottomedOut[0] ==1:
             c.ProbeDetected = 1
         time.sleep(.1)
+        os.system('bash ~/cn-seamless/GasControl/reset_module_only')
         c.ProbeDetected = 0
 
 c.ready()
@@ -158,8 +166,10 @@ while (True):
         Manifold.CuttingJetCommand = False
 
    # print(f" CuttingJetCommand: {Manifold.CuttingJetCommand}")
-#    if hal.get_value("plasmac.ohmic-enable"):
- #       Manifold.Probe()
+    if hal.get_value("plasmac.ohmic-enable"):
+        print("Going to Probe in gascontrol.py")
+        Manifold.Probe()
+        
     if Manifold.CuttingJetCommand:
         if Manifold.CuttingJetStatus==False:
             Manifold.TurnOnJet()  

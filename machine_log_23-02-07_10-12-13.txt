@@ -1,8 +1,0 @@
---- QtVCP Screen Started on: Tue, Feb 07 2023 10:08:47 AM ---
-Tue07 10:08: Tool 0: No Tool
-Tue07 10:09: Loaded: /home/pi/nc_files/SIC27.nc
-Tue07 10:09: safe traverse height has been reduced to 0.69in.
-
-Tue07 10:11: no arc detected after 3 start attempts
-program is paused.
-

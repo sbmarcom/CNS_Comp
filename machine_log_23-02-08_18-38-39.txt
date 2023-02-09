@@ -1,0 +1,8 @@
+--- QtVCP Screen Started on: Wed, Feb 08 2023 06:37:36 PM ---
+Wed08 18:37: Tool 0: No Tool
+Wed08 18:37: Loaded: /home/pi/nc_files/SIC26.ngc
+Wed08 18:38: safe traverse height has been reduced to 0.57in.
+
+Wed08 18:38: pierce height would exceed Z axis maximum limit
+condition found while moving to probe height during ohmic probing
+

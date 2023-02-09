@@ -7,6 +7,8 @@
 	loadrt plasmac	
     loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
 	loadrt or2 count=3
+	loadrt not count=1
+
 	setp plasmac.debug-print 1
 #load the GC python script
 	loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
@@ -32,9 +34,9 @@
 	
 	
 # estop loopback, SPI comms enable and feedback
-	net user-enable-out 	<= remora.SPI-enable  iocontrol.0.user-enable-out	#	=> remora.SPI-enable
-	net user-request-enable <= iocontrol.0.user-request-enable	=> remora.SPI-reset
-	net remora-status 	<= remora.SPI-status 		=> iocontrol.0.emc-enable-in
+	net user-enable-out 	<= remora.SPI-enable  iocontrol.0.user-enable-out	#	=> remora.SPI-enable 
+	net user-request-enable <= iocontrol.0.user-request-enable	=> remora.SPI-reset 
+	net remora-status 	<= remora.SPI-status 		=> iocontrol.0.emc-enable-in 
 	
 	net iflag proto2kins.iflag remora.enable-pose.0
 
@@ -50,6 +52,7 @@
 	addf or2.0 base-thread
 	addf or2.1 base-thread
 	addf or2.2 base-thread
+	addf not.0 base-thread
 	#write position feedback
 
 	setp proto2kins.D2 [MACHINE_DIMENSIONS]ARM1_LENGTH
@@ -68,7 +71,7 @@
 
 	net j0pos-cmd 		<= joint.0.motor-pos-cmd 	=> remora.joint.0.pos-cmd  
 	net j0pos-fb 		<= remora.joint.0.pos-fb 	=> joint.0.motor-pos-fb
-	net j0enable 		<= joint.0.amp-enable-out 	=> remora.joint.0.enable# halui.joint.0.home
+	net j0enable 		<= joint.0.amp-enable-out 	=> remora.joint.0.enable #halui.joint.0.home
 	
 	
 
@@ -81,7 +84,7 @@
 	
 	net j1pos-cmd 		<= joint.1.motor-pos-cmd 	=> remora.joint.1.pos-cmd
 	net j1pos-fb 		<= remora.joint.1.pos-fb 	=> joint.1.motor-pos-fb 
-	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable # halui.joint.1.home
+	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable #halui.joint.1.home
 
  #Joint 2 setup
 
@@ -90,4 +93,6 @@
 
 	net j2pos-cmd 		<= joint.2.motor-pos-cmd 	=> remora.joint.2.pos-cmd
 	net j2pos-fb 		<= remora.joint.2.pos-fb 	=> joint.2.motor-pos-fb
-	net j2enable 		<= joint.2.amp-enable-out 	=> remora.joint.2.enable
+	net j2enable 		<= joint.2.amp-enable-out 	=> remora.joint.2.enable #halui.joint.2.home
+	net rawj2home remora.input.0 not.0.in
+	net j2home not.0.out     joint.2.home-sw-in
