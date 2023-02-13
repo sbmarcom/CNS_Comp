@@ -3,7 +3,6 @@
 
 	loadrt [KINS]KINEMATICS
 	loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_spindles=[TRAJ]SPINDLES
-	loadrt remora
 	loadrt plasmac	
     loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
 	loadrt or2 count=3
@@ -33,21 +32,12 @@
 #	net jog-x-analog input.0.abs-x-position
 	
 	
-# estop loopback, SPI comms enable and feedback
-	net user-enable-out 	<= remora.SPI-enable  iocontrol.0.user-enable-out	#	=> remora.SPI-enable 
-	net user-request-enable <= iocontrol.0.user-request-enable	=> remora.SPI-reset 
-	net remora-status 	<= remora.SPI-status 		=> iocontrol.0.emc-enable-in 
-	
-	net iflag proto2kins.iflag remora.enable-pose.0
-
 # add the remora and motion functions to threads
 
 	#read position feedback
-	addf remora.read servo-thread
 	addf plasmac servo-thread
 	addf motion-command-handler servo-thread
 	addf motion-controller servo-thread
-	addf remora.write servo-thread
 	addf db_ohmic servo-thread
 	addf or2.0 base-thread
 	addf or2.1 base-thread
@@ -65,34 +55,15 @@
 # Joint 0 setup
 	net plasmac:axis-position joint.2.pos-fb => plasmac.axis-z-position
 
-	setp remora.joint.0.scale 		[JOINT_0]SCALE
-	setp remora.joint.0.maxaccel 	[JOINT_0]STEPGEN_MAXACCEL
-    setp remora.joint.0.home-degs [JOINT_0]HOME_DEGS
-
-	net j0pos-cmd 		<= joint.0.motor-pos-cmd 	=> remora.joint.0.pos-cmd  
-	net j0pos-fb 		<= remora.joint.0.pos-fb 	=> joint.0.motor-pos-fb
-	net j0enable 		<= joint.0.amp-enable-out 	=> remora.joint.0.enable #halui.joint.0.home
-	
-	
+	net j0pos-cmd 		<= joint.0.motor-pos-cmd <= joint.0.motor-pos-fb
+	net j0enable 		<= joint.0.amp-enable-out 	
 
 
 # Joint 1 setup
 
-	setp remora.joint.1.scale 		[JOINT_1]SCALE
-	setp remora.joint.1.maxaccel 	[JOINT_1]STEPGEN_MAXACCEL
-    setp remora.joint.1.home-degs [JOINT_1]HOME_DEGS
-	
-	net j1pos-cmd 		<= joint.1.motor-pos-cmd 	=> remora.joint.1.pos-cmd
-	net j1pos-fb 		<= remora.joint.1.pos-fb 	=> joint.1.motor-pos-fb 
-	net j1enable 		<= joint.1.amp-enable-out 	=> remora.joint.1.enable #halui.joint.1.home
-
+	net j1pos-cmd 		<= joint.1.motor-pos-cmd  => joint.1.motor-pos-fb 
+	net j1enable 		<= joint.1.amp-enable-out
  #Joint 2 setup
 
-	setp remora.joint.2.scale 		[JOINT_2]SCALE
-	setp remora.joint.2.maxaccel 	[JOINT_2]STEPGEN_MAXACCEL
-
-	net j2pos-cmd 		<= joint.2.motor-pos-cmd 	=> remora.joint.2.pos-cmd
-	net j2pos-fb 		<= remora.joint.2.pos-fb 	=> joint.2.motor-pos-fb
-	net j2enable 		<= joint.2.amp-enable-out 	=> remora.joint.2.enable #halui.joint.2.home
-	net rawj2home remora.input.0 not.0.in
-	net j2home not.0.out     joint.2.home-sw-in
+	net j2pos-cmd 		<= joint.2.motor-pos-cmd => joint.2.motor-pos-fb  
+	net j2enable 		<= joint.2.amp-enable-out 	=> 

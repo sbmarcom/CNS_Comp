@@ -1,5 +1,0 @@
---- QtVCP Screen Started on: Wed, Feb 08 2023 06:20:38 PM ---
-Wed08 18:20: Tool 0: No Tool
-Wed08 18:21: Loaded: /home/pi/nc_files/SIC26.ngc
-Wed08 18:21: safe traverse height has been reduced to 0.37in.
-
