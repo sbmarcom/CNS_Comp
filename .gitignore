@@ -4,7 +4,7 @@
 ### LinuxCNC ###
 
 # Machine logs
-machine_log*
+machine_log*.txt
 *.bak
 
 ### Linux ###
