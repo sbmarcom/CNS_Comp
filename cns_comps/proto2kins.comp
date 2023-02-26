@@ -67,6 +67,7 @@ static struct hal_data {
  hal_u32_t *in;
  hal_u32_t *out;
  hal_bit_t  * iflag;
+ hal_bit_t *enabled;
 } *haldata;
 
 #define D1 (*(haldata->d1))
@@ -84,6 +85,8 @@ static struct hal_data {
 #define DEFAULT_D5  50
 #define DEFAULT_D6  50
 
+hal_bit_t previous_enable_state=0; 
+double a0, a1,a2 ;
 
 static int proto2kins_setup(void) {
     int res=0;
@@ -101,6 +104,7 @@ static int proto2kins_setup(void) {
     res += hal_pin_float_newf(HAL_IN, &(haldata->d5), comp_id,"%s.D5","proto2kins");
     res += hal_pin_float_newf(HAL_IN, &(haldata->d6), comp_id,"%s.D6","proto2kins");
     res += hal_pin_bit_newf  (HAL_IN , &(haldata ->iflag), comp_id, "%s.iflag","proto2kins" );
+    res += hal_pin_bit_newf  (HAL_IN , &(haldata ->enabled), comp_id, "%s.motion-enabled","proto2kins" );
 
     if (res) { goto error; }
 
@@ -136,7 +140,7 @@ int kinematicsForward(const double *joint,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
                       KINEMATICS_INVERSE_FLAGS * iflags)
 {
-    double a0, a1,a2 ;
+   
     double x, y, z;
 
 /* convert joint angles to radians for sin() and cos() */
@@ -144,23 +148,25 @@ int kinematicsForward(const double *joint,
     a0 = joint[0] * ( PM_PI / 180 );
     a1 = joint[1] *  ( PM_PI / 180 );
     a2 = joint[2];
+
+    if(*(haldata -> enabled) != previous_enable_state){
+        if(a1 < 0){
+			*(iflags) =1;
+		}
+		else{
+			*(iflags) =0;
+		}
+
+		previous_enable_state = *(haldata -> enabled);
+    }
 /* convert angles into world coords */
     a1 = a1+ a0;
    
-
     x = D2*cos(a0) + D4*cos(a1) ;
     y = D2*sin(a0) + D4*sin(a1) ;
 
-   // *iflags = 0;
-   // *(haldata -> iflag) = 0;
-   // if (-1* (joint[1] )< 90)
-   // {
-        //*iflags = 1;
-  //      
-    //     *(haldata -> iflag) = 1;
-	//}
     world->tran.x = x;
-    world->tran.y = y;
+    world->tran.y = -1*y;
     world->tran.z =a2;
 
     return (0);
@@ -171,13 +177,15 @@ int kinematicsInverse(const  EmcPose *world,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
+    
     double a3;
     double q0, q1;
     double xt, yt, rsq, cc;
     double x, y, z;
 
+
     x = world->tran.x;
-    y = world->tran.y;
+    y = -1*(world->tran.y);
     z = world->tran.z;
 
     /* horizontal distance (squared) from end effector centerline
@@ -189,9 +197,7 @@ int kinematicsInverse(const  EmcPose *world,
     if(cc > 1) cc = 1;
     q1 = acos(cc);
 
-   // if (*iflags)
-        //q1 = q1;
-    if (*(haldata -> iflag )){
+    if (*(iflags)){
         q1 = -q1;
     }
     /* angle to end effector */

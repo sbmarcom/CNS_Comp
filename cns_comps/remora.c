@@ -643,6 +643,7 @@ void spi_read()
 	}
 	*(data->pos_fb[1])= -1* (*(data->pos_fb[1]));
 	*(data->pos_fb[2])= (float)((rxData.jointFeedback[2])/(data->pos_scale[2]));
+//THE FOLLOWING LINES SHOULD BE COMMENTED OUT IF THE Iflag is Set in Kinematics
 
 	if (*(data -> stepperEnable[0]) != old_enable_status){
 

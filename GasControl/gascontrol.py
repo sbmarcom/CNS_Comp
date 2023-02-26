@@ -164,19 +164,23 @@ while (True):
             Manifold.CuttingJetCommand = True
     else:
         Manifold.CuttingJetCommand = False
-
+    #if hal.get_value("plasmac.torch_on"):
+        #c.ReadyToCutConfirmation =False
+        #Manifold.TurnOffJet()
+        #print("Turning off spindle at speed because of cut recovery")
    # print(f" CuttingJetCommand: {Manifold.CuttingJetCommand}")
     if hal.get_value("plasmac.ohmic-enable"):
         print("Going to Probe in gascontrol.py")
         Manifold.Probe()
         
-    if Manifold.CuttingJetCommand:
+    if Manifold.CuttingJetCommand and (hal.get_value("plasmac.stop-type-out") != 3) :
         if Manifold.CuttingJetStatus==False:
             Manifold.TurnOnJet()  
          
             print(f"Gas Turned On")
             continue
     else:
+        Manifold.CuttingJetCommand=False
         if Manifold.CuttingJetStatus==True:
             Manifold.TurnOffJet()
             c.ReadyToCutConfirmation = False

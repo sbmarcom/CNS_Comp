@@ -32,10 +32,10 @@
 #	net jog-y-analog input.0.abs-y-position
 #	net jog-x-analog input.0.abs-x-position
 	
-	
+	net tits motion.motion-enabled proto2kins.motion-enabled
+
 # estop loopback, SPI comms enable and feedback
 	net user-enable-out 	<= remora.SPI-enable  iocontrol.0.user-enable-out	#	=> remora.SPI-enable 
-	net user-request-enable <= iocontrol.0.user-request-enable	=> remora.SPI-reset 
 	net remora-status 	<= remora.SPI-status 		=> iocontrol.0.emc-enable-in 
 	
 	net iflag proto2kins.iflag remora.enable-pose.0
@@ -93,6 +93,10 @@
 
 	net j2pos-cmd 		<= joint.2.motor-pos-cmd 	=> remora.joint.2.pos-cmd
 	net j2pos-fb 		<= remora.joint.2.pos-fb 	=> joint.2.motor-pos-fb
-	net j2enable 		<= joint.2.amp-enable-out 	=> remora.joint.2.enable #halui.joint.2.home
+	net j2enable 		<= joint.2.amp-enable-out #halui.joint.2.home
 	net rawj2home remora.input.0 not.0.in
 	net j2home not.0.out     joint.2.home-sw-in
+	
+	setp remora.joint.2.enable 1
+
+
