@@ -1,0 +1,42 @@
+(NORTHCAROLINA)
+g20
+g20
+g90g40
+g64p0.004
+g53g0z[#<_ini[axis_z]max_limit>*1-7.874] (Z just below max height)
+g17g91.1
+g64p0.01q0.01
+m52p1
+m65p2
+m65p3
+m68e3q0
+
+(2D PROFILE1)
+(---------------------)
+(- NORMAL OPERATION. -)
+(---------------------)
+(PLASMA CUTTING)
+(THROUGH CUTTING)
+
+m66p3.l3q1
+f#<_hal[plasmac.cut-feed-rate]>
+
+(Pierce #1)
+g0x4.148896y-2.070826
+M3 $0 S1
+G91
+G1 X.000001
+G90
+M5 $0
+
+
+(Pierce #2)
+g0x0.y0
+M3 $0 S1
+G91
+G1 X.000001
+G90
+M5 $0
+
+M2 (END)
+;cns_gui filtered G-code file
