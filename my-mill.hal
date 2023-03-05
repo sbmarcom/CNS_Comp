@@ -18,7 +18,10 @@
 	net ProbeReturn or2.0.in0 GC.ProbeDetected
 	net fucked or2.2.out or2.0.in1
 	
-	setp plasmac.setup-feed-rate 1
+	setp plasmac.setup-feed-rate 10
+	setp plasmac.ohmic-probe-enable 1
+	setp plasmac.probe-feed-rate 10
+	setp plasmac.cut-volts 1
 #load hal input for cn-seamless controller
 #
 #
