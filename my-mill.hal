@@ -8,8 +8,14 @@
     loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
 	loadrt or2 count=3
 	loadrt not count=1
+	#loadusr -W hal_input -KRAL "Product=572b"
 
 	setp plasmac.debug-print 1
+	setp halui.feed-override.scale .01
+	setp plasmac.thc-enable 1
+	setp plasmac.thc-feed-rate 5
+	setp plasmac.pid-p-gain 1
+
 #load the GC python script
 	loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
 	net Pierce GC.Pierce motion.digital-in-00 or2.1.out
@@ -22,10 +28,7 @@
 	setp plasmac.ohmic-probe-enable 1
 	setp plasmac.probe-feed-rate 10
 	setp plasmac.cut-volts 1
-#load hal input for cn-seamless controller
-#
-#
-	#loadusr -W hal_input -KRA  CNSeamless 
+
 #	net jog_z_up  input.0.btn-a
 #	net jog_z_down  input.0.btn-y
 #	net feed_up input.0.btn-tl

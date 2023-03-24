@@ -1,0 +1,18 @@
+[COLOR_OPTIONS]
+Foreground = #ffee06
+Highlight = #ffee06
+Background = #16160e
+Background Alt = #26261e
+Disabled = #b0b0b0
+Estop = #ff0000
+
+[CONVERSATIONAL]
+Preamble = G20 G64P0.004 G40 G49 G80 G90 G92.1 G94 G97
+Postamble = G20 G64P0.004 G40 G49 G80 G90 G92.1 G94 G97
+Origin = 0
+Leadin = 0
+Leadout = 0
+Hole diameter = 1.26
+Hole speed = 60
+Grid Size = 0
+

@@ -97,7 +97,7 @@ Custom style = None
 Port = 
 
 [COLOR_OPTIONS]
-Foreground = #73abff
+Foreground = #D5ADA9
 Highlight = #73abff
 LED = #ffee06
 Background = #16160e
