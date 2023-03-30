@@ -8,8 +8,8 @@ DEBUG = 1
 VERSION = 1.1
 
 [DISPLAY]
-DISPLAY = qtvcp -f   cnsgui
-#DISPLAY =axis
+DISPLAY = qtvcp -f cnsgui
+#DISPLAY =axias
 EDITOR = gedit
 PREFERENCE_FILE_PATH = gmoccapy_preferences
 #USER_COMMAND_FILE = /home/pi/linuxcnc/configs/usercommand_dark.py
