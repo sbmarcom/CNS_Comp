@@ -1,0 +1,34 @@
+
+#Bit In Pins
+
+net cnscomp:machine-is-on           halui.machine.is-on            =>  cnscomp.machine_is_on
+net cnscomp:program-is-idle         halui.machine.program.is-idle    =>  cnscomp.program_is_idle
+net cnscomp:program-is-paused       halui.machine.program.is-paused     cnscomp.program_is_paused
+net cnscomp:program-is-running      halui.machine.program.is-running    cnscomp.program_is_running
+
+net cnscomp:spindle-0-is-on         spindle.0.on                        cnscomp.spindle_0_is_on               
+net cnscomp:spindle-0-stopped       spindle.0.stop                      cnscomp.spindle_0_stopped;           
+net cnscomp:spindl-0-at-speed       spindle.0.at-speed                  cnscomp.spindle_0_at_speed;     
+net cnscomp:motion-type          motion.motion-type          =>  cnscomp.motion_type
+
+
+
+
+
+# Float in Pins
+
+net cnscomp:x-offset-current     axis.x.eoffset              =>  cnscomp.x_offset_current
+net cnscomp:y-offset-current     axis.y.eoffset              =>  cnscomp.y_offset_current
+net cnscomp:z-offset-current     axis.z.eoffset              =>  cnscomp.z_offset_current
+
+net cnscomp:axis-x-position      axis.x.pos-cmd              =>  cnscomp.axis_x_position
+net cnscomp:axis-y-position      axis.y.pos-cmd              =>  cnscomp.axis_y_position
+net cnscomp:axis-z-position      axis.z.pos-cmd              =>  cnscomp.axis_z_position
+
+net cnscomp:enable_eoffsets      axis.x.eoffset-enable  axis.y.eoffset-enable axis.z.eoffset-enable  cnscomp.enable_eoffsets
+net cnscomp:clear-eoffsets       axis.x.eoffset-clear axis.y.eoffset-clear axis.z.eoffset-clear cnscomp.clear_eoffsets
+net cnscomp:feed-hold            motion.feed-hold               cnscomp.feed_hold
+net cnscomp:x-offset-scale       cnscomp.x_offset_scale        axis.x.eoffset-scale 
+net cnscomp:y-offset-scale       cnscomp.y_offset_scale         axis.y.eoffset-scale 
+net cnscomp:z-offset-scale       cnscomp.z_offset_scale         axis.z.eoffset-scale
+
