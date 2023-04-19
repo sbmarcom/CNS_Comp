@@ -61,13 +61,13 @@ lookup_table_t create_lookup_table(const char *  filename){
     char line[256];
     int row = 0;
     while(fgets(line,sizeof(line),file)){
-
+        rtapi_print_msg(RTAPI_MSG_INFO, "row %i %s \n", row,line );
         char *token ;
         token = strtok(line, ",");
-        entry[row].entry_method = (module_methods_t)row;
-
+        entry[row].entry_method = (module_methods_t)token;
+        
         token = strtok(NULL, ",");
-        entry[row].override = (module_methods_t)row;
+        entry[row].override = (module_methods_t)token;
 
         // Parse required_matches
         token = strtok(NULL, ",");
@@ -75,10 +75,10 @@ lookup_table_t create_lookup_table(const char *  filename){
 
         // Parse values
         for (int i = 0; i < PARAMETER_COUNT; i++) {
-            for (int j = 0; j < 2; j++) {
-                token = strtok(NULL, ",");
-                entry[row].values[i][j] = atoi(token);
-            }
+            token = strtok(NULL, ",");
+            entry[row].values[i][0] = atoi(token);
+            token = strtok(NULL, ",");
+            entry[row].values[i][1] = atoi(token);
         }
 
         row++;
@@ -94,7 +94,10 @@ lookup_table_t create_lookup_table(const char *  filename){
 }
 
 int rtapi_app_main(void)
+
 {
+    rtapi_set_msg_level(3);
+    rtapi_print_msg(RTAPI_MSG_INFO, "%s teststr \n", modname);
    
    char name[HAL_NAME_LEN + 1];
    int n, retval;
@@ -102,7 +105,7 @@ int rtapi_app_main(void)
    comp_id = hal_init(modname);
     if (comp_id < 0)
 	{
-		rtapi_print_msg(RTAPI_MSG_ERR, "%s ERROR: hal_init() failed \n", modname);
+		rtapi_print_msg(RTAPI_MSG_INFO, "%s ERROR: hal_init() failed \n", modname);
 		return -1;
     }
 
@@ -113,6 +116,10 @@ int rtapi_app_main(void)
 		hal_exit(comp_id);
 		return -1;
 	}
+
+    retval = hal_pin_bit_newf(HAL_IN, &(data->temp),
+			comp_id, "plasmac.cut-feed-rate", prefix);
+	if (retval != 0) goto error;
 
     retval = hal_pin_bit_newf(HAL_IN, &(data->cut_recovery),
 			comp_id, "%s.cut_recovery", prefix);
@@ -143,9 +150,7 @@ int rtapi_app_main(void)
 	if (retval != 0) goto error;
 
 
-    retval = hal_pin_bit_newf(HAL_IN, &(data->motion_type),
-			comp_id, "%s.motion_type", prefix);
-	if (retval != 0) goto error;
+    
 
     retval = hal_pin_bit_newf(HAL_IN, &(data->spindle_0_is_on),
 			comp_id, "%s.spindle_0_is_on", prefix);
@@ -298,6 +303,10 @@ int rtapi_app_main(void)
 			comp_id, "%s.user_z_motion_command", prefix);
 	if (retval != 0) goto error;
 
+    retval = hal_pin_s32_newf(HAL_IN, &(data->motion_type),
+			comp_id, "%s.motion_type", prefix);
+	if (retval != 0) goto error;
+
     //Out Bit Pins
 
     retval = hal_pin_bit_newf(HAL_OUT, &(data->probe_good),
@@ -318,6 +327,10 @@ int rtapi_app_main(void)
 
     retval = hal_pin_bit_newf(HAL_OUT, &(data->enable_eoffsets),
 			comp_id, "%s.enable_eoffsets", prefix);
+	if (retval != 0) goto error;
+
+    retval = hal_pin_bit_newf(HAL_OUT, &(data->probe_enable),
+			comp_id, "%s.probe_enable", prefix);
 	if (retval != 0) goto error;
 
     retval = hal_pin_bit_newf(HAL_OUT, &(data->feed_hold),
@@ -379,12 +392,11 @@ int rtapi_app_main(void)
 		return -1;
 	}
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "%s: installed driver\n", modname);
-	hal_ready(comp_id);
-    return 0;
+    
+    
 
     //Adding parameters to the parameter table in the correct order
-    g_lookup_table = create_lookup_table(resourcefile); 
+    //g_lookup_table = create_lookup_table(resourcefile); 
     g_parameters.override = data->state_override;
     g_parameters.values[0] = data -> module_type;
     g_parameters.values[1] = data -> cut_type;
@@ -404,11 +416,15 @@ int rtapi_app_main(void)
     g_contour.num_points_requested    = data -> probe_point_count;
     g_contour.point_data = malloc(10 * sizeof(float *)); // Allocating memory for 10 pointers to float arrays  
 
+    rtapi_print_msg(RTAPI_MSG_INFO, "%s made it past assiging parameters \n", modname);
+
     if (!g_contour.num_points_requested || !g_contour.point_data) {
         fprintf(stderr, "Failed to allocate memory\n");
         hal_exit(comp_id);
         return -1;
     }
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "%s made it past malloc\n", modname);
     // Adding function pointers to the array
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][E_STOP] =                   semi_auto_gc_estop;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][PROGRAM_PAUSED]=            semi_auto_gc_program_paused;
@@ -422,9 +438,11 @@ int rtapi_app_main(void)
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][PROCESS_RECOVERY_MOTION]=   semi_auto_gc_cut_recovery_motion;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][PROCESS_RECOVERY_RESET]=    semi_auto_gc_cut_recovery_reset;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][END_PROCESS]=               semi_auto_gc_end_process;
-    g_function_pointers.function_ptrs[SEMI_AUTO_GC][IDLE]=                      semi_auto_gc_idle;
+    //g_function_pointers.function_ptrs[SEMI_AUTO_GC][IDLE]=                      semi_auto_gc_idle;
 
-    
+    rtapi_print_msg(RTAPI_MSG_INFO, "%s: installed driver\n", modname);
+	hal_ready(comp_id);
+    return 0;
 }
 
 
@@ -441,7 +459,7 @@ module_methods_t current_method;
 current_method = determine_method(&g_parameters, &g_lookup_table );
 
 while (current_method != NUM_METHODS){
-    current_method = g_function_pointers.function_ptrs[0][g_current_state]();
+    current_method = g_function_pointers.function_ptrs[0][current_method]();
 }
 
 

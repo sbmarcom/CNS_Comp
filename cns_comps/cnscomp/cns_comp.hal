@@ -1,15 +1,15 @@
 
 #Bit In Pins
 
-net cnscomp:machine-is-on           halui.machine.is-on            =>  cnscomp.machine_is_on
-net cnscomp:program-is-idle         halui.machine.program.is-idle    =>  cnscomp.program_is_idle
-net cnscomp:program-is-paused       halui.machine.program.is-paused     cnscomp.program_is_paused
-net cnscomp:program-is-running      halui.machine.program.is-running    cnscomp.program_is_running
+net cns_comp:machine-is-on           halui.machine.is-on            =>  cns_comp.machine_is_on
+net cns_comp:program-is-idle         halui.program.is-idle    =>  cns_comp.program_is_idle
+net cns_comp:program-is-paused       halui.program.is-paused     cns_comp.program_is_paused
+net cns_comp:program-is-running      halui.program.is-running    cns_comp.program_is_running
 
-net cnscomp:spindle-0-is-on         spindle.0.on                        cnscomp.spindle_0_is_on               
-net cnscomp:spindle-0-stopped       spindle.0.stop                      cnscomp.spindle_0_stopped;           
-net cnscomp:spindl-0-at-speed       spindle.0.at-speed                  cnscomp.spindle_0_at_speed;     
-net cnscomp:motion-type          motion.motion-type          =>  cnscomp.motion_type
+           
+#net cns_comp:spindle-0-stopped       spindle.0.stop                      cns_comp.spindle_0_stopped         
+#net cns_comp:spindl-0-at-speed       spindle.0.at-speed                  cns_comp.spindle_0_at_speed   
+net cns_comp:motion-type          motion.motion-type          =>  cns_comp.motion_type
 
 
 
@@ -17,18 +17,18 @@ net cnscomp:motion-type          motion.motion-type          =>  cnscomp.motion_
 
 # Float in Pins
 
-net cnscomp:x-offset-current     axis.x.eoffset              =>  cnscomp.x_offset_current
-net cnscomp:y-offset-current     axis.y.eoffset              =>  cnscomp.y_offset_current
-net cnscomp:z-offset-current     axis.z.eoffset              =>  cnscomp.z_offset_current
+net cns_comp:x-offset-current     axis.x.eoffset              =>  cns_comp.x_offset_current
+net cns_comp:y-offset-current     axis.y.eoffset              =>  cns_comp.y_offset_current
+net cns_comp:z-offset-current     axis.z.eoffset              =>  cns_comp.z_offset_current
 
-net cnscomp:axis-x-position      axis.x.pos-cmd              =>  cnscomp.axis_x_position
-net cnscomp:axis-y-position      axis.y.pos-cmd              =>  cnscomp.axis_y_position
-net cnscomp:axis-z-position      axis.z.pos-cmd              =>  cnscomp.axis_z_position
+net cns_comp:axis-x-position      axis.x.pos-cmd              =>  cns_comp.axis_x_position
+net cns_comp:axis-y-position      axis.y.pos-cmd              =>  cns_comp.axis_y_position
+net cns_comp:axis-z-position      axis.z.pos-cmd              =>  cns_comp.axis_z_position
 
-net cnscomp:enable_eoffsets      axis.x.eoffset-enable  axis.y.eoffset-enable axis.z.eoffset-enable  cnscomp.enable_eoffsets
-net cnscomp:clear-eoffsets       axis.x.eoffset-clear axis.y.eoffset-clear axis.z.eoffset-clear cnscomp.clear_eoffsets
-net cnscomp:feed-hold            motion.feed-hold               cnscomp.feed_hold
-net cnscomp:x-offset-scale       cnscomp.x_offset_scale        axis.x.eoffset-scale 
-net cnscomp:y-offset-scale       cnscomp.y_offset_scale         axis.y.eoffset-scale 
-net cnscomp:z-offset-scale       cnscomp.z_offset_scale         axis.z.eoffset-scale
+net cns_comp:enable_eoffsets      axis.x.eoffset-enable  axis.y.eoffset-enable axis.z.eoffset-enable  cns_comp.enable_eoffsets
+net cns_comp:clear-eoffsets       axis.x.eoffset-clear axis.y.eoffset-clear axis.z.eoffset-clear cns_comp.clear_eoffsets
+net cns_comp:feed-hold            motion.feed-hold               cns_comp.feed_hold
+net cns_comp:x-offset-scale       cns_comp.x_offset_scale        axis.x.eoffset-scale 
+net cns_comp:y-offset-scale       cns_comp.y_offset_scale         axis.y.eoffset-scale 
+net cns_comp:z-offset-scale       cns_comp.z_offset_scale         axis.z.eoffset-scale
 

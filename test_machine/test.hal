@@ -17,8 +17,8 @@
 #load the GC python script
 	loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
 	net Pierce GC.Pierce motion.digital-in-00 or2.1.out
-    net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation #TRUE when manifold sends verification of torch being on
-    net M3 spindle.0.on GC.FlameCommandOn # TRUE when M3 
+    net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation cns_comp.spindle_0_at_speed#TRUE when manifold sends verification of torch being on
+    net M3 spindle.0.on GC.FlameCommandOn cns_comp.spindle_0_is_on   # TRUE when M3 
 	net ProbeReturn or2.0.in0 GC.ProbeDetected
 	net fucked or2.2.out or2.0.in1
 	

@@ -5,7 +5,7 @@
 #define EOFFSET_ERROR_MARGIN .01
 #define MAX_PREHEAT_TIME 100
 
-#define PARAMETER_COUNT 8
+#define PARAMETER_COUNT 15
 
 enum tf{
     FALSE,
@@ -25,7 +25,6 @@ typedef enum {
     PROCESS_RECOVERY_MOTION,
     PROCESS_RECOVERY_RESET,
     END_PROCESS,
-    IDLE,
     NUM_METHODS
 }module_methods_t ;
 
@@ -96,7 +95,7 @@ typedef struct {
     hal_bit_t     * program_is_paused;           //"program is paused, connect to halui.program.is-paused";
     hal_bit_t     * program_is_running;          //"program is running, connect to halui.program.is-running";
     hal_bit_t     * resume_cut;                  //"True when user presses resume cut button in cut recovery UI";
-    hal_bit_t     * motion_type;                 //Connect to motion.motion-type
+   
     hal_bit_t     * spindle_0_is_on;             //Connect to spindle.0.on
     hal_bit_t     * spindle_0_stopped;            //Connect to spindle.0.stop
     hal_bit_t     * spindle_0_at_speed;          //Connect to spindle.0.at-speed
@@ -106,6 +105,7 @@ typedef struct {
     hal_bit_t     * probe_status;          //True when probe is triggered
     hal_bit_t     * clear_probe_data;          //True when probe is triggered
     hal_bit_t     * pierce_command;           //User command to pierce
+    hal_bit_t     * temp;
 
     hal_float_t   * axis_x_max_limit;            //"axis x maximum limit, connect to ini.x.max-limit";
     hal_float_t   * axis_x_min_limit;            //"axis x minimum limit, connect to ini.x.min-limit";
@@ -137,7 +137,7 @@ typedef struct {
     hal_u32_t     * probe_point_count;             // Number of points to probe
 
     hal_s32_t     * user_z_motion_command;        // 0,1,or -1 depending on whether the user desires motion
-    
+    hal_s32_t     * motion_type;                 //Connect to motion.motion-type
 
     //Out Bit Pins
     hal_bit_t     * probe_good;                  //On when probe is good
