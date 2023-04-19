@@ -122,7 +122,7 @@ class module:
         time.sleep(.01)
         #t = spi.xfer([0xAB])
         BottomedOut = [0]
-        while  (BottomedOut[0]!=1 and hal.get_value("plasmac.ohmic-enable") ):
+        while  (BottomedOut[0]!=1 and hal.get_value("cns_comp.probe_enable") ):
             time.sleep(.01)
             
             BottomedOut = spi.xfer([0xAB])
@@ -169,11 +169,11 @@ while (True):
         #Manifold.TurnOffJet()
         #print("Turning off spindle at speed because of cut recovery")
    # print(f" CuttingJetCommand: {Manifold.CuttingJetCommand}")
-    if hal.get_value("plasmac.ohmic-enable"):
+    if hal.get_value("cns_comp.probe_enable"):
         print("Going to Probe in gascontrol.py")
         Manifold.Probe()
         
-    if Manifold.CuttingJetCommand and (hal.get_value("plasmac.stop-type-out") != 3) :
+    if Manifold.CuttingJetCommand :
         if Manifold.CuttingJetStatus==False:
             Manifold.TurnOnJet()  
          
