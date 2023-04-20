@@ -12,7 +12,8 @@
 #include "rtapi_math.h"
 #include "rtapi.h"			/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"			/* HAL public API decls */
+#include "hal.h"
+#include <sys/stat.h>			/* HAL public API decls */
 
 #include <math.h>
 #include <fcntl.h>
@@ -37,7 +38,7 @@ MODULE_LICENSE("GPL v2");
 static int 			comp_id;	
 static const char *modname = MODNAME;
 static const char *prefix = PREFIX;
-const char * resourcefile = "~/resources/lookuptable.csv";
+const char * resourcefile = "/home/pi/resources/lookuptable.csv";
 
 
 lookup_table_t g_lookup_table; 
@@ -54,44 +55,6 @@ float g_preheat_timer;
 
 
 
-lookup_table_t create_lookup_table(const char *  filename){
-   lookup_table_entry_values_t entry[NUM_METHODS];
-   FILE *file = fopen(filename,"r");
-  
-    char line[256];
-    int row = 0;
-    while(fgets(line,sizeof(line),file)){
-        rtapi_print_msg(RTAPI_MSG_INFO, "row %i %s \n", row,line );
-        char *token ;
-        token = strtok(line, ",");
-        entry[row].entry_method = (module_methods_t)token;
-        
-        token = strtok(NULL, ",");
-        entry[row].override = (module_methods_t)token;
-
-        // Parse required_matches
-        token = strtok(NULL, ",");
-        entry[row].required_matches = atoi(token);
-
-        // Parse values
-        for (int i = 0; i < PARAMETER_COUNT; i++) {
-            token = strtok(NULL, ",");
-            entry[row].values[i][0] = atoi(token);
-            token = strtok(NULL, ",");
-            entry[row].values[i][1] = atoi(token);
-        }
-
-        row++;
-    }
-
-    lookup_table_t lookup_table;
-    for (int i = 0; i < NUM_METHODS; i++) {
-        lookup_table.entries[i] = entry[i];
-    
-
-    }
-    return lookup_table;
-}
 
 int rtapi_app_main(void)
 
@@ -396,7 +359,8 @@ int rtapi_app_main(void)
     
 
     //Adding parameters to the parameter table in the correct order
-    //g_lookup_table = create_lookup_table(resourcefile); 
+    
+    g_lookup_table = create_lookup_table(resourcefile); 
     g_parameters.override = data->state_override;
     g_parameters.values[0] = data -> module_type;
     g_parameters.values[1] = data -> cut_type;
@@ -456,11 +420,13 @@ void run_state_machine(){
 
 
 module_methods_t current_method; 
-current_method = determine_method(&g_parameters, &g_lookup_table );
+rtapi_print_msg(RTAPI_MSG_INFO, "made it to func");
 
-while (current_method != NUM_METHODS){
-    current_method = g_function_pointers.function_ptrs[0][current_method]();
-}
+current_method = determine_method(&g_parameters, &g_lookup_table );
+rtapi_print_msg(RTAPI_MSG_INFO, "Method: %i",(int)current_method);
+//while (current_method != NUM_METHODS){
+    //current_method = g_function_pointers.function_ptrs[0][current_method]();
+//}
 
 
 
@@ -469,22 +435,25 @@ while (current_method != NUM_METHODS){
 
 module_methods_t determine_method(lookup_table_parameters_t *params_l,lookup_table_t *lookup_table_l ){
     //For each method, check and see whether the parameters match the entry
+    rtapi_print_msg(RTAPI_MSG_INFO,"Made it into determine_method");
     for (int i = 0; i < NUM_METHODS; i++) {
         //Pull out the appropriate entry
-        lookup_table_entry_values_t *entry = &lookup_table_l->entries[i];
+        lookup_table_entry_values_t *entry = &(lookup_table_l->entries[i]);
         //Start a count of how many parameters match
         int match_count = 0;
 
         //If the override matches then stop and return the method
-        if (params_l->override == (module_methods_t *)entry->override){
-            return entry->entry_method;
+        if (*(params_l->override) == (module_methods_t)entry->override){
+            return (module_methods_t)entry->entry_method;
         }
 
         //For each parameter go through and see if it is in range, if so increment the match counter
         for (int j = 0; j < PARAMETER_COUNT; j++) {
             int value = *(int *)params_l->values[j];
-            if (value >= entry->values[j][0] && value <= entry->values[j][1]) {
-                match_count++;
+                if (value >= entry->values[j][0] && value <= entry->values[j][1]) {
+                    rtapi_print_msg(RTAPI_MSG_INFO, "%s: matchcount ++", match_count);
+                    match_count++;
+
             }
         
         }
@@ -770,3 +739,48 @@ void compute_positions(void){
     g_axes_positions.z_absolute = *(data-> axis_z_position) + *(data-> z_offset_current);
     g_axes_positions.height_from_stock = *(data-> axis_z_position) + *(data-> z_offset_current)+g_axes_positions.stock_height;
 }
+
+lookup_table_t create_lookup_table(const char *  filename){
+   lookup_table_entry_values_t entry[NUM_METHODS];
+   rtapi_print_msg(RTAPI_MSG_INFO, "made entry \n");
+
+   FILE *file = fopen(filename,"r");
+   if (file == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Error opening file\n");
+   }
+  
+    char line[256];
+    int row = 0;
+    while(fgets(line,sizeof(line),file)){
+        //rtapi_print_msg(RTAPI_MSG_INFO, "row %i %s \n", row,line );
+        char *token ;
+        token = strtok(line, ",");
+        entry[row].entry_method = (module_methods_t)token;
+        
+        token = strtok(NULL, ",");
+        entry[row].override = (module_methods_t)token;
+
+        // Parse required_matches
+        token = strtok(NULL, ",");
+        entry[row].required_matches = atoi(token);
+
+        // Parse values
+        for (int i = 0; i < PARAMETER_COUNT; i++) {
+            token = strtok(NULL, ",");
+            entry[row].values[i][0] = atoi(token);
+            token = strtok(NULL, ",");
+            entry[row].values[i][1] = atoi(token);
+        }
+
+        row++;
+    }
+
+    lookup_table_t lookup_table;
+    for (int i = 0; i < NUM_METHODS; i++) {
+        
+        lookup_table.entries[i] = entry[i];
+
+    }
+    return lookup_table;
+}
+
