@@ -1,7 +1,7 @@
 #ifndef CNS_DEFS_H
 #define CNS_DEFS_H
 
-#define fperiod .0001
+#define fperiod .002
 #define EOFFSET_ERROR_MARGIN .01
 #define MAX_PREHEAT_TIME 100
 

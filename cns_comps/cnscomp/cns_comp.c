@@ -614,8 +614,10 @@ module_methods_t semi_auto_gc_probe(void){
         
         else{
             *(data -> probe_enable)= FALSE;
-            rtapi_print_msg(RTAPI_MSG_INFO, "TURNING OFF PROBE");
-            //PRINT ERROR  
+            
+            rtapi_print_msg(RTAPI_MSG_INFO, "TURNING OFF PROBE\n");
+            *(data -> state_out) = PROBE_SETUP;
+            
             return NUM_METHODS;
         }
 
@@ -644,7 +646,8 @@ module_methods_t semi_auto_gc_begin_process(void){
             return NUM_METHODS;
         }
         else{
-            g_pierce_timer -= fperiod;
+            rtapi_print_msg(RTAPI_MSG_INFO, "pt\n");
+            g_pierce_timer -= .002;
             return NUM_METHODS;            
         }
         
@@ -685,8 +688,8 @@ module_methods_t semi_auto_gc_torch_off(void){
 
 module_methods_t semi_auto_gc_in_process_motion(void){
     *(data -> state_out ) = RUNNING_PROCESS;
-    *(data -> user_in_process_z_offset) += *(data -> user_z_motion_command);
-    float in_process_height = *(data -> user_in_process_z_offset)/ *(data -> z_offset_scale) + *(data -> cut_height) ;
+    *(data -> user_in_process_z_offset) += *(data -> user_z_motion_command)*.0001;
+    float in_process_height = *(data -> user_in_process_z_offset) + *(data -> cut_height) ;
     offset_move(FROM_DATUM,'z',*(data -> setup_velocity), in_process_height);
     return NUM_METHODS;
     
