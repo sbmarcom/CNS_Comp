@@ -56,8 +56,6 @@ float g_preheat_timer;
 int l = 0;
 int ticker = 0; 
 
-
-
 int rtapi_app_main(void)
 
 {
@@ -242,8 +240,7 @@ int rtapi_app_main(void)
     retval = hal_pin_float_newf(HAL_IN, &(data->pierce_delay),
 			comp_id, "%s.pierce_delay", prefix);
 	if (retval != 0) goto error;
-    /*
-
+    
     retval = hal_pin_float_newf(HAL_IN, &(data->new_probe_point_x),
 			comp_id, "%s.new_probe_point_x", prefix);
 	if (retval != 0) goto error;
@@ -252,7 +249,7 @@ int rtapi_app_main(void)
 			comp_id, "%s.new_probe_point_y", prefix);
 	if (retval != 0) goto error;
 
-    */
+    
 
     // In u32 pins
 
@@ -279,6 +276,11 @@ int rtapi_app_main(void)
     retval = hal_pin_s32_newf(HAL_IN, &(data->motion_type),
 			comp_id, "%s.motion_type", prefix);
 	if (retval != 0) goto error;
+
+    retval = hal_pin_s32_newf(HAL_IN, &(data->probe_type),
+			comp_id, "%s.probe_type", prefix);
+	if (retval != 0) goto error;
+
 
     //Out Bit Pins
 
@@ -314,8 +316,12 @@ int rtapi_app_main(void)
 			comp_id, "%s.torch_on", prefix);
 	if (retval != 0) goto error;
 
-    retval = hal_pin_bit_newf(HAL_OUT, &(data->cut_started),
-			comp_id, "%s.cut_started", prefix);
+    retval = hal_pin_bit_newf(HAL_OUT, &(data->process_started),
+			comp_id, "%s.process_started", prefix);
+	if (retval != 0) goto error;
+
+    retval = hal_pin_bit_newf(HAL_OUT, &(data->program_started),
+			comp_id, "%s.program_started", prefix);
 	if (retval != 0) goto error;
 
     //Out S32 Pins
@@ -338,6 +344,10 @@ int rtapi_app_main(void)
 
     retval = hal_pin_s32_newf(HAL_OUT, &(data->method_out),
 			comp_id, "%s.method_out", prefix);
+	if (retval != 0) goto error;
+
+    retval = hal_pin_s32_newf(HAL_OUT, &(data->pierce_count),
+			comp_id, "%s.pierce_count", prefix);
 	if (retval != 0) goto error;
 
     //Out Float Pins
@@ -411,71 +421,51 @@ int rtapi_app_main(void)
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][PROCESS_RECOVERY_MOTION]=   semi_auto_gc_cut_recovery_motion;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][PROCESS_RECOVERY_RESET]=    semi_auto_gc_cut_recovery_reset;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][END_PROCESS]=               semi_auto_gc_end_process;
+    g_function_pointers.function_ptrs[SEMI_AUTO_GC][INITIALIZE_PROBE]=          semi_auto_gc_initialize_probe;
     //g_function_pointers.function_ptrs[SEMI_AUTO_GC][IDLE]=                      semi_auto_gc_idle;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "%s: installed driver\n", modname);
 	
     return 0;
 }
-
-
 void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
 }
-
-
 void run_state_machine(){
 //rtapi_print_msg(RTAPI_MSG_INFO, "entering cns_comp\n");
 
-if (l==0){
+    if (l==0){
+        
+        g_contour.points_probed = 0;
+        *(data ->probe_good) = 0;
+        *(data ->recovering) = 0;
+        *(data ->active_x_y_offsets) = 0;
+        *(data ->clear_eoffsets) = 0;
+        *(data ->enable_eoffsets) = 0;
+        *(data ->probe_enable) = 0;
+        *(data ->feed_hold) = 0;
+        *(data ->z_offset_scale ) = .01;
+        *(data ->state_out) = 0;
+        *(data ->clear_probe_data ) = 0;
+
+        l++;
+    }
+
     
-    g_contour.points_probed = 0;
-    *(data ->probe_good) = 0;
-    *(data ->recovering) = 0;
-    *(data ->active_x_y_offsets) = 0;
-    *(data ->clear_eoffsets) = 0;
-    *(data ->enable_eoffsets) = 0;
-    *(data ->probe_enable) = 0;
-    *(data ->feed_hold) = 0;
-    *(data ->z_offset_scale ) = .01;
-    *(data ->state_out) = 0;
-    *(data ->clear_probe_data ) = 0;
-
-    l++;
-}
-
-    g_contour.num_points_requested = data -> probe_point_count;
     g_parameters.override =  data -> state_override;
 
     g_parameters.values[0] = (volatile int *)data -> module_type;
-    g_parameters.values[1] = (volatile int *)data -> cut_type;
-    g_parameters.values[2] = (volatile int *)data -> motion_type;
-    g_parameters.values[3] = (volatile int *)data -> program_is_idle;
-    g_parameters.values[4] = (volatile int *)data -> program_is_paused;
-    g_parameters.values[5] = (volatile int *)data -> program_is_running;
-    g_parameters.values[6] = (volatile int *)data -> machine_is_on;
+    g_parameters.values[1] = (volatile int *)data -> external_estop;
+    g_parameters.values[2] = (volatile int *)data -> machine_is_on;
+    g_parameters.values[3] = (volatile int *)data -> program_is_paused;
+    g_parameters.values[4] = (volatile int *)data -> program_is_running;
+    g_parameters.values[5] = (volatile int *)data -> process_started;
+    g_parameters.values[6] = (volatile int *)data -> program_started;    
     g_parameters.values[7] = (volatile int *)data -> spindle_0_is_on;
-    g_parameters.values[8] = (volatile int *)data -> spindle_0_stopped;
-    g_parameters.values[9] = (volatile int *)data -> spindle_0_at_speed;
-    g_parameters.values[10] = (volatile int *)data -> probe_good;
-    g_parameters.values[11] = (volatile int *)data -> recovering;
-    g_parameters.values[12] = (volatile int *)data -> active_x_y_offsets;
-    g_parameters.values[13] = (volatile int *)data -> resume;
-    g_parameters.values[14] = (volatile int *)data -> state_out;
-    g_parameters.values[15] = (volatile int *)data -> all_homed;
-    g_parameters.values[16] = (volatile int *)data -> torch_on;
-    g_parameters.values[17] = (volatile int *)data -> cut_started;
-/*l++;
-if (l>12000){
-    compute_positions();
-    rtapi_print_msg(RTAPI_MSG_INFO, "d\n");
-    float a = 0;
-    float v = 1;
-    offset_move(ABSOLUTE,'z', v, a);
+    g_parameters.values[8] = (volatile int *)data -> spindle_0_at_speed;
+    g_parameters.values[9] = (volatile int *)data -> probe_good;
 
-}
-*/
 /*
 if (ticker == 0){
     ticker = 1;
@@ -499,7 +489,6 @@ while (current_method != NUM_METHODS){
 }
 
 }
-
 module_methods_t determine_method(lookup_table_parameters_t *params_l,lookup_table_t *lookup_table_l ){
     int value;
     //For each method, check and see whether the parameters match the entry
@@ -513,33 +502,24 @@ module_methods_t determine_method(lookup_table_parameters_t *params_l,lookup_tab
         if (*(params_l->override) == (module_methods_t)entry->override){
             rtapi_print_msg(RTAPI_MSG_INFO, " overriding to  %i \n", entry-> entry_method);
             return (module_methods_t)entry->entry_method;
-        }
-        //rtapi_print_msg(RTAPI_MSG_INFO,"%i values[5][0]\n",entry->values[2][0]);
-        
+        }     
         //For each parameter go through and see if it is in range, if so increment the match counter
         for (int j = 0; j < PARAMETER_COUNT; j++) {
-            //rtapi_print_msg(RTAPI_MSG_INFO, "parameter %i: ",j);
             value = *(int *)params_l->values[j];
-            //rtapi_print_msg(RTAPI_MSG_INFO, "%i \n" ,value);
             if ((value >= (entry->values[j][0])) && (value <= (entry->values[j][1]))) {
-            //if ((1 >= entry->values[j][0]) && (1 <= entry->values[j][1])) {
                 match_count++;
             }
             
         }
-        
-        if (match_count >= (PARAMETER_COUNT- (entry->required_matches) ) ){
-            //rtapi_print_msg(RTAPI_MSG_INFO, " returning   %i \n", entry-> entry_method);
+        if (match_count >= PARAMETER_COUNT ){
             return (module_methods_t)(entry-> entry_method);
 
         }
-
     
-}
+    }
     //rtapi_print_msg(RTAPI_MSG_INFO, " defaulting to return e_stop \n");
-    return E_STOP;
+    return NUM_METHODS;
 }
-
 
 module_methods_t semi_auto_gc_estop(void){
     return NUM_METHODS;
@@ -548,7 +528,6 @@ module_methods_t semi_auto_gc_program_paused(void){
 
     return MACHINE_DISABLED;
 }
-
 module_methods_t semi_auto_gc_machine_disabled(void){
     //rtapi_print_msg(RTAPI_MSG_INFO, "In Disabled Function\n");
     *(data->enable_eoffsets) = FALSE;
@@ -559,40 +538,95 @@ module_methods_t semi_auto_gc_machine_disabled(void){
     *(data -> state_out) = DISABLED;
     return NUM_METHODS;
 }
-
-
 module_methods_t semi_auto_gc_probe(void){
     
-    if( *(data -> clear_probe_data)){
-        clear_contour_map();
-        return NUM_METHODS;
-    }
+    switch (*(data -> probe_type)){
 
-    if(g_contour.points_probed == *(g_contour.num_points_requested) ){
-        //rtapi_print_msg(RTAPI_MSG_INFO, "changing state to PROBE_SETUP\n")
-        *(data -> probe_good)= TRUE;
-        *(data -> state_out) = PROCESS_SETUP;
-        return NUM_METHODS;
-    }
-    
-    if( *(data -> probe_good)){
-        return NUM_METHODS;
+        case KEEP_POINTS:
+            if (*(data -> probe_point_count)){
+                *data->probe_good = TRUE;
+                return NUM_METHODS;
+            }
+            else{
+                rtapi_print_msg(RTAPI_MSG_ERR, "NEED PROBE DATA TO KEEP POINTS \n");
+                return NUM_METHODS;
+            }
+        case ON_FIRST_PIERCE:
+            if(g_contour.points_probed >= 1){
+                *data->probe_good = TRUE;
+                return NUM_METHODS;
+            }
+
+            else{
+                g_contour.probe_points_requested[g_contour.points_probed][0] = g_axes_positions.x_absolute;
+                g_contour.probe_points_requested[g_contour.points_probed][1] = g_axes_positions.y_absolute;
+                break;
+            }
+            
+        case ON_EACH_PIERCE:
+            if(g_contour.points_probed > *data->pierce_count){
+                *data->probe_good = TRUE;
+                return NUM_METHODS;
+            }
+
+            else{
+                g_contour.probe_points_requested[g_contour.points_probed][0] = g_axes_positions.x_absolute;
+                g_contour.probe_points_requested[g_contour.points_probed][1] = g_axes_positions.y_absolute;
+                break;
+            }
+
+        case PROBE_HERE:
+            //This has the same action here as probe_contours, so no need to duplicate code
+            rtapi_print_msg(RTAPI_MSG_ERR, "GOING TO CASE PROBE_CONTOURS\n");
+        case PROBE_CONTOURS:
+            if( g_contour.points_probed >= g_contour.probe_points_requested_qty){
+                break;
+            }
+
+            if (*data -> active_x_y_offsets){
+                //We'll only end up here if there are enough points but the offsets need to be cleared
+                offset_move(CLEAR_OFFSETS, 'x', *(data->probe_feed_rate),(float) 0 );
+                offset_move(CLEAR_OFFSETS, 'y', *(data->probe_feed_rate),(float) 0 );
+                return NUM_METHODS;
+            }
+            else{
+            *data->probe_good = TRUE;
+            return NUM_METHODS;
+            }
+        case CLEAR_CONTOUR_MAP:
+            rtapi_print_msg(RTAPI_MSG_ERR, "INVALID PROBE TYPE FOR RUNNING PROGRAM\n");
+            return NUM_METHODS;
+
+
+
     }
     if (!*(data -> enable_eoffsets)){
          *(data -> enable_eoffsets) = TRUE;
          *(data ->z_offset_scale ) = .0001;
+         *(data ->x_offset_scale ) = .0001;
+         *(data ->y_offset_scale ) = .0001;
     }
 
     if (*(data -> state_out) == PROBE_SETUP){
 
         if(g_axes_positions.z_absolute <= (*(data->probe_start_height) + EOFFSET_ERROR_MARGIN) &&
-           g_axes_positions.z_absolute >= (*(data->probe_start_height) - EOFFSET_ERROR_MARGIN)) {
+           g_axes_positions.z_absolute >= (*(data->probe_start_height) - EOFFSET_ERROR_MARGIN) &&
+           
+           g_axes_positions.x_absolute <= (g_contour.probe_points_requested[g_contour.points_probed][0] + EOFFSET_ERROR_MARGIN) &&
+           g_axes_positions.x_absolute >= (g_contour.probe_points_requested[g_contour.points_probed][0] - EOFFSET_ERROR_MARGIN) &&
+
+           g_axes_positions.y_absolute <= (g_contour.probe_points_requested[g_contour.points_probed][1] + EOFFSET_ERROR_MARGIN) &&
+           g_axes_positions.y_absolute >= (g_contour.probe_points_requested[g_contour.points_probed][1] - EOFFSET_ERROR_MARGIN)
+           ) {
+
             *(data -> state_out) = PROBING;
             *(data -> probe_enable)= TRUE; 
             return NUM_METHODS;
         }
         else{
-            int a =offset_move(ABSOLUTE,'z', *(data->probe_feed_rate), *(data->probe_start_height) );
+            offset_move(ABSOLUTE,'z', *(data->probe_feed_rate), *(data->probe_start_height) );
+            offset_move(ABSOLUTE,'x', *(data->probe_feed_rate), g_contour.probe_points_requested[g_contour.points_probed][0] );
+            offset_move(ABSOLUTE,'x', *(data->probe_feed_rate), g_contour.probe_points_requested[g_contour.points_probed][0] );
             return NUM_METHODS;
         }
     }
@@ -632,9 +666,6 @@ module_methods_t semi_auto_gc_probe(void){
     
 
     }
-
-
-
 module_methods_t semi_auto_gc_begin_process(void){
     *(data -> feed_hold)=TRUE;
 
@@ -642,7 +673,7 @@ module_methods_t semi_auto_gc_begin_process(void){
         if (g_pierce_timer <= 0){
             *(data -> feed_hold)=FALSE;
             *(data -> state_out) = RUNNING_PROCESS;
-            *(data -> cut_started) = TRUE;
+            *(data -> process_started) = TRUE;
             return NUM_METHODS;
         }
         else{
@@ -672,8 +703,6 @@ module_methods_t semi_auto_gc_begin_process(void){
             
         }
 }
-
-
 module_methods_t semi_auto_gc_torch_on(void){
     *(data -> torch_on )= TRUE;
     return NUM_METHODS;
@@ -682,10 +711,9 @@ module_methods_t semi_auto_gc_torch_on(void){
 module_methods_t semi_auto_gc_torch_off(void){
     *(data -> torch_on) = FALSE;
     *(data -> state_out) = PROCESS_SETUP;
-    *(data -> cut_started) = FALSE;
+    *(data -> process_started) = FALSE;
     return NUM_METHODS;
 }
-
 module_methods_t semi_auto_gc_in_process_motion(void){
     *(data -> state_out ) = RUNNING_PROCESS;
     *(data -> user_in_process_z_offset) += *(data -> user_z_motion_command)*.0001;
@@ -721,6 +749,59 @@ module_methods_t semi_auto_gc_idle(void){
     return NUM_METHODS;
 }
 
+module_methods_t semi_auto_gc_initialize_probe(void){
+    switch (*(data -> probe_type)){
+
+        case KEEP_POINTS:
+            return NUM_METHODS;
+        case ON_FIRST_PIERCE:
+            clear_contour_map();
+            return NUM_METHODS;
+            
+        case ON_EACH_PIERCE:
+            clear_contour_map();
+            return NUM_METHODS;
+            
+        case PROBE_HERE:
+            for (int i = 0; i < g_contour.probe_points_requested_qty; i++) {
+                if (fabs(*(data ->new_probe_point_x)- g_contour.probe_points_requested[i][0]) <= EOFFSET_ERROR_MARGIN &&
+                    fabs(*(data ->new_probe_point_y) - g_contour.probe_points_requested[i][1]) <= EOFFSET_ERROR_MARGIN) {
+                        rtapi_print_msg(RTAPI_MSG_INFO, "THIS POINT ALREADY IN BUFFER\n");
+                        return NUM_METHODS;
+                    }      
+            }
+
+            g_contour.probe_points_requested[g_contour.probe_points_requested_qty][0] = *(data ->new_probe_point_x);
+            g_contour.probe_points_requested[g_contour.probe_points_requested_qty][1] = *(data ->new_probe_point_y);
+
+            g_contour.probe_points_requested_qty++;
+            return NUM_METHODS;
+
+
+        case PROBE_CONTOURS:
+
+            for (int i = 0; i < g_contour.probe_points_requested_qty; i++) {
+                if (fabs(*(data ->new_probe_point_x)- g_contour.probe_points_requested[i][0]) <= EOFFSET_ERROR_MARGIN &&
+                    fabs(*(data ->new_probe_point_y) - g_contour.probe_points_requested[i][1]) <= EOFFSET_ERROR_MARGIN) {
+                        rtapi_print_msg(RTAPI_MSG_INFO, "THIS POINT ALREADY IN BUFFER\n");
+                        return NUM_METHODS;
+                    }      
+            }
+
+            g_contour.probe_points_requested[g_contour.probe_points_requested_qty][0] = *(data ->new_probe_point_x);
+            g_contour.probe_points_requested[g_contour.probe_points_requested_qty][1] = *(data ->new_probe_point_y);
+
+            g_contour.probe_points_requested_qty++;
+            return NUM_METHODS;
+        case CLEAR_CONTOUR_MAP: 
+            clear_contour_map();
+            return NUM_METHODS;
+    }
+
+    return NUM_METHODS;
+
+
+}
 void add_to_contour_map(void){
     g_contour.point_data[(g_contour.points_probed)][0] = g_axes_positions.x_absolute;
     g_contour.point_data[(g_contour.points_probed)][1] = g_axes_positions.y_absolute;
@@ -730,17 +811,16 @@ void add_to_contour_map(void){
 
 void clear_contour_map(void){
     g_contour.points_probed =0;
-
-
+    g_contour.probe_points_requested_qty =0;
 }
 
-int offset_move(motion_types motion_type, char axis, volatile float velocity, float target){
+int offset_move(motion_types motion_type, char axis,float velocity, float target){
     float position;
     int counts_per_cycle;
     switch (axis){
      case 'x':
         position = g_axes_positions.x_absolute;
-        counts_per_cycle = (int) round(velocity * (*(data-> x_offset_scale))*fperiod);
+        counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> x_offset_scale)));
         if (motion_type == INCREMENTAL ){
             *(data-> x_offset_counts)+= counts_per_cycle;
         }
@@ -748,21 +828,26 @@ int offset_move(motion_types motion_type, char axis, volatile float velocity, fl
         if (motion_type == ABSOLUTE){
             if (((position-velocity*fperiod)) >= target){
                 *(data -> x_offset_counts) -= counts_per_cycle;
-                return 0;
+                
             }
             if ((position+velocity*fperiod) <= target){
-                *(data -> x_offset_counts) += counts_per_cycle;
-                return 0;
+                *(data -> x_offset_counts) += counts_per_cycle;         
             }
-
-            else{
-                return 0;
-            }
+            return 0;
         }
-    
+
+        if(motion_type == CLEAR_OFFSETS){
+            if (*(data -> x_offset_counts)>0){
+                *(data -> x_offset_counts) -= counts_per_cycle;
+            }
+            if (*(data -> x_offset_counts)< 0){
+                *(data -> x_offset_counts) += counts_per_cycle;   
+            }
+            return 0;
+        }
     case 'y':
         position = g_axes_positions.y_absolute;
-        counts_per_cycle = 5;//(int) round(velocity * (*(data-> y_offset_scale))*fperiod);
+        counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> y_offset_scale)));;
         if (motion_type == INCREMENTAL ){
             *(data-> y_offset_counts)+= counts_per_cycle;
         }
@@ -771,21 +856,23 @@ int offset_move(motion_types motion_type, char axis, volatile float velocity, fl
 
             if (position-velocity*fperiod > target){
                 *(data -> y_offset_counts) -= counts_per_cycle;
-                return 0;
             }
             if (position+velocity*fperiod < target){
                 *(data -> y_offset_counts) += counts_per_cycle;
-                return 0;
             }
-
-            else{
                 return 0;
-            }
         }
-        
+        if(motion_type == CLEAR_OFFSETS){
+            if (*(data -> y_offset_counts)>0){
+                *(data -> y_offset_counts) -= counts_per_cycle;
+            }
+            if (*(data -> y_offset_counts)< 0){
+                *(data -> y_offset_counts) += counts_per_cycle;   
+            }
+            return 0;
+        }
     
     case 'z':
-               
         position = g_axes_positions.z_absolute;
         counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> z_offset_scale)));
         //rtapi_print_msg(RTAPI_MSG_INFO, "counts_per_cycle %i\n",counts_per_cycle);
@@ -795,43 +882,32 @@ int offset_move(motion_types motion_type, char axis, volatile float velocity, fl
 
         if (motion_type == ABSOLUTE){
             if ((position-EOFFSET_ERROR_MARGIN) >= target){
-                
                 *(data -> z_offset_counts) -= counts_per_cycle;
-                return 0;
             }
             if ((position+EOFFSET_ERROR_MARGIN)  <= target){
                 
                 *(data -> z_offset_counts) += counts_per_cycle;
-                return 0;
             }
-
-            else{
-                return 0;
-            }
+            return 0;
         }
         if (motion_type == FROM_DATUM ){
             position = g_axes_positions.height_from_stock;
             if (position-velocity*fperiod >= target){
                 *(data -> z_offset_counts) -= counts_per_cycle;
-                return 0;
             }
             if (position+velocity*fperiod <= target){
                 *(data -> z_offset_counts) += counts_per_cycle;
-                return 0 ;
             }
-
-            else{
-                return 0 ;
-            }
-        }
+            return 0 ;
         
-    
+        }  
     }
 }
 
 void compute_datum(void){
     //rtapi_print_msg(RTAPI_MSG_INFO, "entering compute_datum %i \n", *(data -> state_out));
     if (g_contour.points_probed != 0){
+        //will add contour mapping math here
             g_axes_positions.stock_height = g_contour.point_data[0][2];
     }
     else{
@@ -850,6 +926,15 @@ void compute_positions(void){
     *(data -> z_abs_out) = g_axes_positions.z_absolute;
     g_axes_positions.height_from_stock = *(data-> axis_z_position) + *(data-> z_offset_current)-g_axes_positions.stock_height;
     *(data -> height_from_stock) = g_axes_positions.height_from_stock;
+
+    if (*data-> x_offset_counts || *data-> y_offset_counts){
+        *data->active_x_y_offsets = TRUE;
+    }
+    else{
+        *data->active_x_y_offsets = FALSE;
+    }
+
+    
     //rtapi_print_msg(RTAPI_MSG_INFO, "datum z %f \n", g_axes_positions.height_from_stock);
     
 }
@@ -877,8 +962,6 @@ lookup_table_t create_lookup_table(const char *  filename){
         entry[row].override = (module_methods_t)atoi(token);
 
         // Parse required_matches
-        token = strtok(NULL, ",");
-        entry[row].required_matches = atoi(token);
 
         // Parse values
         for (int i = 0; i < PARAMETER_COUNT; i++) {
