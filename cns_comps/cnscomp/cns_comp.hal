@@ -9,9 +9,14 @@ net cns_comp:program-is-running      halui.program.is-running    cns_comp.progra
            
 #net cns_comp:spindle-0-stopped       spindle.0.stop                      cns_comp.spindle_0_stopped         
 #net cns_comp:spindl-0-at-speed       spindle.0.at-speed                  cns_comp.spindle_0_at_speed   
-net cns_comp:motion-type          motion.motion-type          =>  cns_comp.motion_type
+net cns_comp:motion-type              motion.motion-type          =>      cns_comp.motion_type
 
+net cns_comp:x-homed                   joint.0.homed  and2.0.in0
+net cns_comp:y-homed                   joint.1.homed  and2.0.in1
+net cns_comp:z-homed                    joint.2.homed and2.1.in0
 
+net cns_comp:all-homed_and and2.1.in1  and2.0.out
+net cns_comp:all-homed   and2.1.out cns_comp.all_homed 
 
 
 
@@ -28,7 +33,8 @@ net cns_comp:axis-z-position      axis.z.pos-cmd              =>  cns_comp.axis_
 net cns_comp:enable_eoffsets      axis.x.eoffset-enable  axis.y.eoffset-enable axis.z.eoffset-enable  cns_comp.enable_eoffsets
 net cns_comp:clear-eoffsets       axis.x.eoffset-clear axis.y.eoffset-clear axis.z.eoffset-clear cns_comp.clear_eoffsets
 net cns_comp:feed-hold            motion.feed-hold               cns_comp.feed_hold
-net cns_comp:x-offset-scale       cns_comp.x_offset_scale        axis.x.eoffset-scale 
+net cns_comp:x-offset-scale       cns_comp.x_offset_scale         axis.x.eoffset-scale 
 net cns_comp:y-offset-scale       cns_comp.y_offset_scale         axis.y.eoffset-scale 
 net cns_comp:z-offset-scale       cns_comp.z_offset_scale         axis.z.eoffset-scale
 
+net cns_comp:z-offset-counts      axis.z.eoffset-counts    cns_comp.z_offset_counts

@@ -1,11 +1,11 @@
 #ifndef CNS_DEFS_H
 #define CNS_DEFS_H
 
-#define fperiod .002
+#define fperiod .0001
 #define EOFFSET_ERROR_MARGIN .01
 #define MAX_PREHEAT_TIME 100
 
-#define PARAMETER_COUNT 15
+#define PARAMETER_COUNT 18
 
 enum tf{
     FALSE,
@@ -78,7 +78,7 @@ typedef struct{
     int values [PARAMETER_COUNT][2];
 }lookup_table_entry_values_t ;
 
-//Number of entries in the struct is equal to the number of methods to choose from
+//Number of entries in the struct is tequal to the number of methods to choose from
 //The overall lookup table struct containing all of the entries
 typedef struct {
     lookup_table_entry_values_t entries [NUM_METHODS];
@@ -105,7 +105,10 @@ typedef struct {
     hal_bit_t     * probe_status;          //True when probe is triggered
     hal_bit_t     * clear_probe_data;          //True when probe is triggered
     hal_bit_t     * pierce_command;           //User command to pierce
-    hal_bit_t     * temp;
+    hal_bit_t     * all_homed;               //when all joints are homed
+
+    hal_float_t     * temp; //temporary pin for plasmac cut feed rate
+
 
     hal_float_t   * axis_x_max_limit;            //"axis x maximum limit, connect to ini.x.max-limit";
     hal_float_t   * axis_x_min_limit;            //"axis x minimum limit, connect to ini.x.min-limit";
@@ -131,13 +134,15 @@ typedef struct {
     hal_float_t   * safe_height;               //height for linkign
     hal_float_t   * pierce_delay;               //pierce delay time
 
-    hal_u32_t     * module_type;                  // The current module type
-    hal_u32_t     * cut_type;                     // The current cut type
+  
+                       // The current cut type
     hal_u32_t     * state_override;               //if the GUI does a state override for some reason
     hal_u32_t     * probe_point_count;             // Number of points to probe
 
     hal_s32_t     * user_z_motion_command;        // 0,1,or -1 depending on whether the user desires motion
     hal_s32_t     * motion_type;                 //Connect to motion.motion-type
+    hal_s32_t     * module_type;                  // The current module type
+    hal_s32_t     * cut_type;  
 
     //Out Bit Pins
     hal_bit_t     * probe_good;                  //On when probe is good
@@ -147,19 +152,23 @@ typedef struct {
     hal_bit_t     * enable_eoffsets;             // enable eoffsets tie to  axis.x.eoffset-enable,y,z
     hal_bit_t     * probe_enable;                // turn on the probe
     hal_bit_t     * feed_hold;                   // "feed hold, connect to motion.feed-hold
-    
+    hal_bit_t     * torch_on;                   // turn on torch
+    hal_bit_t     * cut_started;                   // the current cut has started
+
     //Out S32 Pins
     hal_s32_t     * x_offset_counts;             //"current x axis offset, connect to axis.x.eoffset-counts";
     hal_s32_t     * y_offset_counts;             // "current y axis offset, connect to axis.y.eoffset-counts";
     hal_s32_t     * z_offset_counts;             //"current z axis offset, connect to axis.z.eoffset-counts";
-     hal_s32_t    * state_out;             //"current z axis offset, connect to axis.z.eoffset-counts";
+    hal_s32_t     * state_out;             //"current z axis offset, connect to axis.z.eoffset-counts";
+    hal_s32_t     * method_out;
     //Out Float Pins
 
     hal_float_t   * x_offset_scale;             //"current x axis offset, connect to axis.x.eoffset-scale";
     hal_float_t   * y_offset_scale;             //"current y axis offset, connect to axis.y.eoffset-scale";
     hal_float_t   * z_offset_scale;             //"current z axis offset, connect to axis.z.eoffset-scale";
     hal_float_t   * user_in_process_z_offset;   //The user's requested z offset from the otherwise commanded height
-
+    hal_float_t   * z_abs_out;               //absolute z height computed by compute_positions function
+    hal_float_t  *  height_from_stock;               //absolute z height computed by compute_positions function
 }hal_data_t;
 
 struct positions {
@@ -172,14 +181,14 @@ struct positions {
 
 typedef struct {
     volatile int * num_points_requested;
-    float ** point_data;
+    float point_data [10][3];
     int points_probed;
 
 }contour_map;
 
 //Function Prototypes
 lookup_table_t create_lookup_table(const char *  filename);
-int offset_move(motion_types motion_type, char axis, float velocity, float target);
+int offset_move(motion_types motion_type, char axis, volatile float velocity, float target);
 void offset_feedrates(void);
 void run_state_machine();
 void add_to_contour_map(void);
