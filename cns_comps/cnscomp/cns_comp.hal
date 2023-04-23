@@ -38,3 +38,5 @@ net cns_comp:y-offset-scale       cns_comp.y_offset_scale         axis.y.eoffset
 net cns_comp:z-offset-scale       cns_comp.z_offset_scale         axis.z.eoffset-scale
 
 net cns_comp:z-offset-counts      axis.z.eoffset-counts    cns_comp.z_offset_counts
+net cns_comp:x-offset-counts      axis.x.eoffset-counts    cns_comp.x_offset_counts
+net cns_comp:y-offset-counts      axis.y.eoffset-counts    cns_comp.y_offset_counts

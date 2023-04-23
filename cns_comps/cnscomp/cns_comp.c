@@ -48,6 +48,7 @@ lookup_table_parameters_t g_parameters;
 static hal_data_t *data;
 contour_map g_contour;
 struct positions g_axes_positions;
+process_recovery_t g_process_recovery;
 
 
 float g_pierce_timer;
@@ -84,10 +85,6 @@ int rtapi_app_main(void)
 			comp_id, "plasmac.cut-feed-rate", prefix);
 	if (retval != 0) goto error;
 
-    retval = hal_pin_bit_newf(HAL_IN, &(data->cut_recovery),
-			comp_id, "%s.cut_recovery", prefix);
-	if (retval != 0) goto error;
-
     retval = hal_pin_bit_newf(HAL_IN, &(data->external_estop),
 			comp_id, "%s.external_estop", prefix);
 	if (retval != 0) goto error;
@@ -107,13 +104,7 @@ int rtapi_app_main(void)
     retval = hal_pin_bit_newf(HAL_IN, &(data->program_is_running),
 			comp_id, "%s.program_is_running", prefix);
 	if (retval != 0) goto error;
-
-    retval = hal_pin_bit_newf(HAL_IN, &(data->resume_cut),
-			comp_id, "%s.resume_cut", prefix);
-	if (retval != 0) goto error;
-
-
-    
+   
 
     retval = hal_pin_bit_newf(HAL_IN, &(data->spindle_0_is_on),
 			comp_id, "%s.spindle_0_is_on", prefix);
@@ -127,18 +118,11 @@ int rtapi_app_main(void)
 			comp_id, "%s.spindle_0_at_speed", prefix);
 	if (retval != 0) goto error;
 
-    retval = hal_pin_bit_newf(HAL_IN, &(data->resume),
-			comp_id, "%s.resume", prefix);
-	if (retval != 0) goto error;
 
     retval = hal_pin_bit_newf(HAL_IN, &(data->probe_trigger),
 			comp_id, "%s.probe_trigger", prefix);
 	if (retval != 0) goto error;
-    /*
-    retval = hal_pin_bit_newf(HAL_IN, &(data->add_probe_point),
-			comp_id, "%s.add_probe_point", prefix);
-	if (retval != 0) goto error;
-    */
+   
     retval = hal_pin_bit_newf(HAL_IN, &(data->probe_status),
 			comp_id, "%s.probe_status", prefix);
 	if (retval != 0) goto error;
@@ -154,6 +138,23 @@ int rtapi_app_main(void)
     retval = hal_pin_bit_newf(HAL_IN, &(data-> all_homed),
 			comp_id, "%s.all_homed", prefix);
 	if (retval != 0) goto error;
+
+    retval = hal_pin_bit_newf(HAL_IN, &(data->process_recovery_enable),
+			comp_id, "%s.process_recovery_enable", prefix);
+	if (retval != 0) goto error;
+
+
+    retval = hal_pin_bit_newf(HAL_IN, &(data->process_recovery_x_motion),
+			comp_id, "%s.process_recovery_x_motion", prefix);
+	if (retval != 0) goto error;
+
+    retval = hal_pin_bit_newf(HAL_IN, &(data->process_recovery_y_motion),
+			comp_id, "%s.process_recovery_y_motion", prefix);
+	if (retval != 0) goto error;
+
+    retval = hal_pin_bit_newf(HAL_IN, &(data->process_recovery_resume),
+                comp_id, "%s.process_recovery_resume", prefix);
+        if (retval != 0) goto error;
 
     ///In Float Pins
 
@@ -288,9 +289,7 @@ int rtapi_app_main(void)
 			comp_id, "%s.probe_good", prefix);
 	if (retval != 0) goto error;
 
-    retval = hal_pin_bit_newf(HAL_OUT, &(data->recovering),
-			comp_id, "%s.recovering", prefix);
-	if (retval != 0) goto error;
+   
 
     retval = hal_pin_bit_newf(HAL_OUT, &(data->active_x_y_offsets),
 			comp_id, "%s.active_x_y_offsets", prefix);
@@ -324,6 +323,14 @@ int rtapi_app_main(void)
 			comp_id, "%s.program_started", prefix);
 	if (retval != 0) goto error;
 
+    retval = hal_pin_bit_newf(HAL_OUT, &(data->process_recovering),
+			comp_id, "%s.process_recovering", prefix);
+	if (retval != 0) goto error;
+
+    retval = hal_pin_bit_newf(HAL_OUT, &(data->ticker),
+			comp_id, "%s.ticker", prefix);
+	if (retval != 0) goto error;
+
     //Out S32 Pins
 
     retval = hal_pin_s32_newf(HAL_OUT, &(data->x_offset_counts),
@@ -348,6 +355,10 @@ int rtapi_app_main(void)
 
     retval = hal_pin_s32_newf(HAL_OUT, &(data->pierce_count),
 			comp_id, "%s.pierce_count", prefix);
+	if (retval != 0) goto error;
+
+    retval = hal_pin_s32_newf(HAL_OUT, &(data->recovery_path_points),
+			comp_id, "%s.recovery_path_points", prefix);
 	if (retval != 0) goto error;
 
     //Out Float Pins
@@ -419,10 +430,10 @@ int rtapi_app_main(void)
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][IN_PROCESS_MOTION]=         semi_auto_gc_in_process_motion;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][LINK_PROCESS_STEPS]=        semi_auto_gc_link_process_steps;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][PROCESS_RECOVERY_MOTION]=   semi_auto_gc_cut_recovery_motion;
-    g_function_pointers.function_ptrs[SEMI_AUTO_GC][PROCESS_RECOVERY_RESET]=    semi_auto_gc_cut_recovery_reset;
+    g_function_pointers.function_ptrs[SEMI_AUTO_GC][PROCESS_RECOVERY_RESUME]=   semi_auto_gc_cut_recovery_resume;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][END_PROCESS]=               semi_auto_gc_end_process;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][INITIALIZE_PROBE]=          semi_auto_gc_initialize_probe;
-    //g_function_pointers.function_ptrs[SEMI_AUTO_GC][IDLE]=                      semi_auto_gc_idle;
+ 
 
     rtapi_print_msg(RTAPI_MSG_INFO, "%s: installed driver\n", modname);
 	
@@ -436,10 +447,10 @@ void run_state_machine(){
 //rtapi_print_msg(RTAPI_MSG_INFO, "entering cns_comp\n");
 
     if (l==0){
-        
+        g_process_recovery.path_points_idx = 0;
         g_contour.points_probed = 0;
         *(data ->probe_good) = 0;
-        *(data ->recovering) = 0;
+        
         *(data ->active_x_y_offsets) = 0;
         *(data ->clear_eoffsets) = 0;
         *(data ->enable_eoffsets) = 0;
@@ -448,41 +459,46 @@ void run_state_machine(){
         *(data ->z_offset_scale ) = .01;
         *(data ->state_out) = 0;
         *(data ->clear_probe_data ) = 0;
+        *(data ->process_recovering) = 0;
+        *(data ->process_recovery_enable) = 1;
+        *(data ->process_started ) = 0;
+        *(data ->program_started ) = 0;
 
         l++;
     }
 
     
     g_parameters.override =  data -> state_override;
-
     g_parameters.values[0] = (volatile int *)data -> module_type;
-    g_parameters.values[1] = (volatile int *)data -> external_estop;
-    g_parameters.values[2] = (volatile int *)data -> machine_is_on;
-    g_parameters.values[3] = (volatile int *)data -> program_is_paused;
-    g_parameters.values[4] = (volatile int *)data -> program_is_running;
-    g_parameters.values[5] = (volatile int *)data -> process_started;
-    g_parameters.values[6] = (volatile int *)data -> program_started;    
-    g_parameters.values[7] = (volatile int *)data -> spindle_0_is_on;
-    g_parameters.values[8] = (volatile int *)data -> spindle_0_at_speed;
-    g_parameters.values[9] = (volatile int *)data -> probe_good;
+    g_parameters.values[1] = (volatile int *)data -> cut_type;
+    g_parameters.values[2] = (volatile int *)data -> external_estop;
+    g_parameters.values[3] = (volatile int *)data -> machine_is_on;
+    g_parameters.values[4] = (volatile int *)data -> program_is_paused;
+    g_parameters.values[5] = (volatile int *)data -> program_is_running;
+    g_parameters.values[6] = (volatile int *)data -> process_started;
+    g_parameters.values[7] = (volatile int *)data -> program_started;    
+    g_parameters.values[8] = (volatile int *)data -> spindle_0_is_on;
+    g_parameters.values[9] = (volatile int *)data -> spindle_0_at_speed;
+    g_parameters.values[10] = (volatile int *)data -> probe_good;
 
-/*
+
 if (ticker == 0){
     ticker = 1;
 }
 else{
     ticker =0;
 }
-*(data->method_out) = ticker;
-*/
+*(data->ticker) = ticker;
+
 
 compute_datum();
 compute_positions();
 module_methods_t current_method = 0; 
 current_method = determine_method(&g_parameters, &g_lookup_table );
-*(data->method_out) = (int) current_method;
+
 //rtapi_print_msg(RTAPI_MSG_INFO, "function call: %i\n", (int) current_method);
 while (current_method != NUM_METHODS){
+    *(data->method_out) = (int) current_method;
     current_method = g_function_pointers.function_ptrs[0][current_method]();
     //rtapi_print_msg(RTAPI_MSG_INFO, "function call: %i\n", (int) current_method);}
 
@@ -524,10 +540,7 @@ module_methods_t determine_method(lookup_table_parameters_t *params_l,lookup_tab
 module_methods_t semi_auto_gc_estop(void){
     return NUM_METHODS;
 }
-module_methods_t semi_auto_gc_program_paused(void){
 
-    return MACHINE_DISABLED;
-}
 module_methods_t semi_auto_gc_machine_disabled(void){
     //rtapi_print_msg(RTAPI_MSG_INFO, "In Disabled Function\n");
     *(data->enable_eoffsets) = FALSE;
@@ -535,7 +548,7 @@ module_methods_t semi_auto_gc_machine_disabled(void){
     *(data->y_offset_counts) = 0;
     *(data->z_offset_counts) = 0;
     *(data->probe_enable) = 0;
-    *(data -> state_out) = DISABLED;
+    *(data -> state_out) = OFF;
     return NUM_METHODS;
 }
 module_methods_t semi_auto_gc_probe(void){
@@ -585,19 +598,17 @@ module_methods_t semi_auto_gc_probe(void){
 
             if (*data -> active_x_y_offsets){
                 //We'll only end up here if there are enough points but the offsets need to be cleared
-                offset_move(CLEAR_OFFSETS, 'x', *(data->probe_feed_rate),(float) 0 );
-                offset_move(CLEAR_OFFSETS, 'y', *(data->probe_feed_rate),(float) 0 );
+                offset_move(ABSOLUTE,COUNTS, 'x', (float)2,(float) 0 );
+                offset_move(ABSOLUTE,COUNTS, 'y', (float)2,(float) 0 );
                 return NUM_METHODS;
             }
             else{
-            *data->probe_good = TRUE;
-            return NUM_METHODS;
+                *data->probe_good = TRUE;
+                return NUM_METHODS;
             }
         case CLEAR_CONTOUR_MAP:
             rtapi_print_msg(RTAPI_MSG_ERR, "INVALID PROBE TYPE FOR RUNNING PROGRAM\n");
             return NUM_METHODS;
-
-
 
     }
     if (!*(data -> enable_eoffsets)){
@@ -624,9 +635,9 @@ module_methods_t semi_auto_gc_probe(void){
             return NUM_METHODS;
         }
         else{
-            offset_move(ABSOLUTE,'z', *(data->probe_feed_rate), *(data->probe_start_height) );
-            offset_move(ABSOLUTE,'x', *(data->probe_feed_rate), g_contour.probe_points_requested[g_contour.points_probed][0] );
-            offset_move(ABSOLUTE,'x', *(data->probe_feed_rate), g_contour.probe_points_requested[g_contour.points_probed][0] );
+            offset_move(ABSOLUTE,IN,'z', *(data->probe_feed_rate), *(data->probe_start_height) );
+            offset_move(ABSOLUTE,IN,'x', *(data->probe_feed_rate), g_contour.probe_points_requested[g_contour.points_probed][0] );
+            offset_move(ABSOLUTE,IN,'y', *(data->probe_feed_rate), g_contour.probe_points_requested[g_contour.points_probed][1] );
             return NUM_METHODS;
         }
     }
@@ -642,7 +653,7 @@ module_methods_t semi_auto_gc_probe(void){
 
         if (*(data->probe_status)){
             float probe_bottom_height = 0.05;
-            int a = offset_move(ABSOLUTE,'z', *(data->probe_feed_rate), probe_bottom_height);
+            int a = offset_move(ABSOLUTE,IN,'z', *(data->probe_feed_rate), probe_bottom_height);
             return NUM_METHODS;
         }
         
@@ -666,28 +677,34 @@ module_methods_t semi_auto_gc_probe(void){
     
 
     }
+
 module_methods_t semi_auto_gc_begin_process(void){
     *(data -> feed_hold)=TRUE;
-
     if (*(data -> spindle_0_at_speed)){
-        if (g_pierce_timer <= 0){
+        if (g_pierce_timer <= 0 ){
+
+            float in_process_height = *(data -> user_in_process_z_offset) + *(data -> cut_height) ;
+            if (g_axes_positions.height_from_stock-EOFFSET_ERROR_MARGIN >in_process_height ||
+                g_axes_positions.height_from_stock+EOFFSET_ERROR_MARGIN <in_process_height){
+                    return IN_PROCESS_MOTION;
+                 }
             *(data -> feed_hold)=FALSE;
-            *(data -> state_out) = RUNNING_PROCESS;
+            *(data -> state_out) = RUNNING;
             *(data -> process_started) = TRUE;
+            *(data -> pierce_count)++;
             return NUM_METHODS;
         }
         else{
-            rtapi_print_msg(RTAPI_MSG_INFO, "pt\n");
-            g_pierce_timer -= .002;
+            g_pierce_timer -= fperiod;
             return NUM_METHODS;            
-        }
-        
+        } 
     }
     else{
-        *(data -> state_out) = PROCESS_SETUP;
-        if (g_axes_positions.height_from_stock >= (*(data -> pierce_height)+EOFFSET_ERROR_MARGIN) || g_axes_positions.height_from_stock <= (*(data -> pierce_height)-EOFFSET_ERROR_MARGIN)){
-            //rtapi_print_msg(RTAPI_MSG_INFO, "ph\n");
-            offset_move(FROM_DATUM, 'z',*(data -> setup_velocity), *(data -> pierce_height));
+        *(data -> state_out) = STARTING_PROCESS;
+        if (g_axes_positions.height_from_stock >= (*(data -> pierce_height)+EOFFSET_ERROR_MARGIN) 
+            || g_axes_positions.height_from_stock <= (*(data -> pierce_height)-EOFFSET_ERROR_MARGIN)){
+            
+            offset_move(FROM_DATUM,IN, 'z',*(data -> setup_velocity), *(data -> pierce_height));
             g_preheat_timer = MAX_PREHEAT_TIME;
             return NUM_METHODS;
         }
@@ -697,7 +714,6 @@ module_methods_t semi_auto_gc_begin_process(void){
         }
         else{
             g_preheat_timer -= fperiod;
-
             return NUM_METHODS;
         }
             
@@ -710,48 +726,143 @@ module_methods_t semi_auto_gc_torch_on(void){
 }
 module_methods_t semi_auto_gc_torch_off(void){
     *(data -> torch_on) = FALSE;
-    *(data -> state_out) = PROCESS_SETUP;
-    *(data -> process_started) = FALSE;
     return NUM_METHODS;
 }
 module_methods_t semi_auto_gc_in_process_motion(void){
-    *(data -> state_out ) = RUNNING_PROCESS;
     *(data -> user_in_process_z_offset) += *(data -> user_z_motion_command)*.0001;
     float in_process_height = *(data -> user_in_process_z_offset) + *(data -> cut_height) ;
-    offset_move(FROM_DATUM,'z',*(data -> setup_velocity), in_process_height);
+    offset_move(FROM_DATUM,IN,'z',*(data -> setup_velocity), in_process_height);
     return NUM_METHODS;
     
 }
 module_methods_t semi_auto_gc_link_process_steps(void){
+    if (!*(data -> enable_eoffsets)){
+         *(data -> enable_eoffsets) = TRUE;
+         *(data ->z_offset_scale ) = .0001;
+         *(data ->x_offset_scale ) = .0003;
+         *(data ->y_offset_scale ) = .0003;
+    }
+    
     *(data -> state_out ) = LINKING;
-    if (g_axes_positions.height_from_stock+EOFFSET_ERROR_MARGIN <= *(data -> safe_height) ){
+    *(data -> program_started)= TRUE;
+    *(data -> process_started)= FALSE;
+    *(data -> probe_good)= FALSE;
+    if (g_axes_positions.z_absolute+EOFFSET_ERROR_MARGIN <= *(data -> safe_height) ||
+        g_axes_positions.z_absolute-EOFFSET_ERROR_MARGIN >= *(data -> safe_height)){
         *(data -> feed_hold) = TRUE;
-
     }
     else{ 
         *(data -> feed_hold) = FALSE;
     }
-    offset_move(FROM_DATUM,'z', *(data -> setup_velocity), *(data -> safe_height));
+    offset_move(ABSOLUTE,IN,'z', *(data -> setup_velocity), *(data -> safe_height));
+
+    if(*data-> torch_on){
+        return DEACTIVATE_IMPLEMENT;
+    }
     return NUM_METHODS;
 
+}
+
+module_methods_t semi_auto_gc_program_paused(void){
+    if (!*data-> process_recovering){
+        *data -> probe_good = FALSE;
+        *data-> state_out = PAUSED;
+        if (*data-> torch_on){
+            return DEACTIVATE_IMPLEMENT;
+        }
+        if (g_axes_positions.z_absolute+EOFFSET_ERROR_MARGIN <= *(data -> safe_height) ){
+            offset_move(ABSOLUTE,IN,'z', *(data -> setup_velocity), *(data -> safe_height));
+            return NUM_METHODS;
+        }
+    }
+
+    if (*data-> process_recovery_enable){
+        if (*data->process_recovery_resume){
+            return PROCESS_RECOVERY_RESUME;
+        }
+        else{
+            return PROCESS_RECOVERY_MOTION;
+        }
+
+    }
+
+    return NUM_METHODS;
 }
 module_methods_t semi_auto_gc_cut_recovery_motion(void){
+    *data->state_out = RECOVERING;
+    *data->process_recovering = TRUE;
+    if (!*data->enable_eoffsets){
+        *data->enable_eoffsets= TRUE;
+        *data ->x_offset_scale = .0001;
+        *data ->y_offset_scale = .0001;
+    }
+
+    if (*data->process_recovery_x_motion ||*data->process_recovery_y_motion  ){
+        int x_counts = g_process_recovery.path_points[g_process_recovery.path_points_idx][0];
+        int y_counts = g_process_recovery.path_points[g_process_recovery.path_points_idx][1];
+        g_process_recovery.path_points_idx ++;
+        *data->recovery_path_points = g_process_recovery.path_points_idx;
+        g_process_recovery.path_points[g_process_recovery.path_points_idx][0] = x_counts + *data->process_recovery_x_motion;
+        g_process_recovery.path_points[g_process_recovery.path_points_idx][1] = y_counts + *data->process_recovery_y_motion;
+    }
+
+    offset_move(ABSOLUTE,COUNTS,'x',(float)2, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][0]);
+    offset_move(ABSOLUTE,COUNTS,'y',(float)2, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][1]);
+
     return NUM_METHODS;
 }
-module_methods_t semi_auto_gc_cut_recovery_reset(void){
-    return NUM_METHODS;
+module_methods_t semi_auto_gc_cut_recovery_resume(void){
+    /*
+    if (!*data -> probe_good){
+        return PROBE;
+    }
+    if (!*data->torch_on || *data->feed_hold){
+        return BEGIN_PROCESS;
+    }
+    */
+
+    if (*data->x_offset_counts == g_process_recovery.path_points[g_process_recovery.path_points_idx][0] &&
+        *data->y_offset_counts == g_process_recovery.path_points[g_process_recovery.path_points_idx][1]){
+
+        if (g_process_recovery.path_points_idx ==0){
+            *data->process_recovering= FALSE;  
+            return IN_PROCESS_MOTION;
+        } 
+        g_process_recovery.path_points_idx --;
+        *data->recovery_path_points = g_process_recovery.path_points_idx;
+
+        }
+
+    offset_move(ABSOLUTE,COUNTS,'x',(float)2, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][0]);
+    offset_move(ABSOLUTE,COUNTS,'y',(float)2, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][1]);
+
+    return IN_PROCESS_MOTION;
 }
+
 module_methods_t semi_auto_gc_end_process(void){
+    *(data -> state_out)= ENDING_CUT;
+    *(data -> process_started)= FALSE;
+    if (g_axes_positions.height_from_stock-EOFFSET_ERROR_MARGIN <= *(data -> safe_height) && 
+        g_axes_positions.height_from_stock+EOFFSET_ERROR_MARGIN >= *(data -> safe_height)){
+            *(data -> state_out)= IDLE;
+            *(data -> program_started)= FALSE;
+            return NUM_METHODS;
+    }
+    offset_move(FROM_DATUM,IN,'z', *(data -> setup_velocity), *(data -> safe_height));
+    if(*data-> torch_on){
+        return DEACTIVATE_IMPLEMENT;
+    }
+    return NUM_METHODS;
+
+    
+    
+    offset_move(FROM_DATUM,IN,'z', *(data -> setup_velocity), *(data -> safe_height));
     return NUM_METHODS;
 }
 
-module_methods_t semi_auto_gc_idle(void){
-    return NUM_METHODS;
-}
 
 module_methods_t semi_auto_gc_initialize_probe(void){
     switch (*(data -> probe_type)){
-
         case KEEP_POINTS:
             return NUM_METHODS;
         case ON_FIRST_PIERCE:
@@ -814,92 +925,154 @@ void clear_contour_map(void){
     g_contour.probe_points_requested_qty =0;
 }
 
-int offset_move(motion_types motion_type, char axis,float velocity, float target){
-    float position;
-    int counts_per_cycle;
+int offset_move(motion_types motion_type, units_t units,  char axis,float velocity, float target){
+    float position=0;
+    int counts_per_cycle=0;
+    float error_margin=0;
+    float motion_per_cycle=0; 
     switch (axis){
      case 'x':
-        position = g_axes_positions.x_absolute;
-        counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> x_offset_scale)));
-        if (motion_type == INCREMENTAL ){
-            *(data-> x_offset_counts)+= counts_per_cycle;
+        switch (units){
+            case MM:
+                counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> x_offset_scale)));
+                position = g_axes_positions.x_absolute;
+                error_margin = EOFFSET_ERROR_MARGIN *25.4;
+                motion_per_cycle = velocity*fperiod;
+                break;
+
+        
+            case IN:
+                counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> x_offset_scale)));
+                position = g_axes_positions.x_absolute;
+                error_margin = EOFFSET_ERROR_MARGIN;
+                motion_per_cycle = velocity*fperiod;
+                break;
+
+            case COUNTS:
+                counts_per_cycle = velocity;
+                position = *data -> x_offset_counts;
+                error_margin = 0;
+                break;
         }
 
-        if (motion_type == ABSOLUTE){
-            if (((position-velocity*fperiod)) >= target){
-                *(data -> x_offset_counts) -= counts_per_cycle;
-                
-            }
-            if ((position+velocity*fperiod) <= target){
-                *(data -> x_offset_counts) += counts_per_cycle;         
-            }
-            return 0;
-        }
+        switch (motion_type){
 
-        if(motion_type == CLEAR_OFFSETS){
-            if (*(data -> x_offset_counts)>0){
-                *(data -> x_offset_counts) -= counts_per_cycle;
-            }
-            if (*(data -> x_offset_counts)< 0){
-                *(data -> x_offset_counts) += counts_per_cycle;   
-            }
-            return 0;
-        }
-    case 'y':
-        position = g_axes_positions.y_absolute;
-        counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> y_offset_scale)));;
-        if (motion_type == INCREMENTAL ){
-            *(data-> y_offset_counts)+= counts_per_cycle;
-        }
-
-        if (motion_type == ABSOLUTE){
-
-            if (position-velocity*fperiod > target){
-                *(data -> y_offset_counts) -= counts_per_cycle;
-            }
-            if (position+velocity*fperiod < target){
-                *(data -> y_offset_counts) += counts_per_cycle;
-            }
+            case INCREMENTAL:
+                *(data-> x_offset_counts)+= counts_per_cycle;
                 return 0;
+
+            case ABSOLUTE:
+                if (((position-error_margin)) >= target){
+                    *(data -> x_offset_counts) -= counts_per_cycle;
+                    return 0;
+                }
+                if ((position+error_margin) <= target){
+                    *(data -> x_offset_counts) += counts_per_cycle;         
+                return 0;
+                }
+                
+ 
+        
         }
-        if(motion_type == CLEAR_OFFSETS){
-            if (*(data -> y_offset_counts)>0){
-                *(data -> y_offset_counts) -= counts_per_cycle;
-            }
-            if (*(data -> y_offset_counts)< 0){
-                *(data -> y_offset_counts) += counts_per_cycle;   
-            }
-            return 0;
+        return 0;
+    
+    case 'y':
+        switch(units){
+            case MM:
+                counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> y_offset_scale)));
+                position = g_axes_positions.y_absolute;
+                error_margin = EOFFSET_ERROR_MARGIN *25.4;
+                motion_per_cycle = velocity*fperiod;
+                break;
+        
+            case IN:
+                counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> y_offset_scale)));
+                position = g_axes_positions.y_absolute;
+                error_margin = EOFFSET_ERROR_MARGIN;
+                motion_per_cycle = velocity*fperiod;
+                break;
+
+            case COUNTS:
+                counts_per_cycle = velocity;
+                position = *data -> y_offset_counts;
+                error_margin = 0;
+                motion_per_cycle = counts_per_cycle;
+                break;
         }
+        switch (motion_type){
+            case INCREMENTAL:
+                *(data-> y_offset_counts)+= counts_per_cycle;
+                return 0;
+
+            case ABSOLUTE:
+
+                if (position-error_margin >= target){
+                    *(data -> y_offset_counts) -= counts_per_cycle;
+                    return 0;
+                }
+                if (position+error_margin <= target){
+                    *(data -> y_offset_counts) += counts_per_cycle;
+                    return 0;
+                }
+                
+        }
+        return 0;
     
     case 'z':
-        position = g_axes_positions.z_absolute;
-        counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> z_offset_scale)));
-        //rtapi_print_msg(RTAPI_MSG_INFO, "counts_per_cycle %i\n",counts_per_cycle);
-        if (motion_type == INCREMENTAL ){
-            *(data-> z_offset_counts)+= counts_per_cycle;
+        switch(units){
+            case MM:
+                counts_per_cycle = (int) round((velocity *fperiod)/(*(data-> z_offset_scale)));
+                position = g_axes_positions.z_absolute;
+                error_margin = EOFFSET_ERROR_MARGIN *25.4;
+                motion_per_cycle = velocity*fperiod;
+                break;
+
+            case IN:
+                counts_per_cycle = 2;//(int) round((velocity *fperiod)/(*(data-> z_offset_scale)));
+                position = g_axes_positions.z_absolute;
+                *(data -> z_abs_out) = position;
+                error_margin = EOFFSET_ERROR_MARGIN;
+                motion_per_cycle = velocity*fperiod;
+                break;
+                
+
+            case COUNTS:
+                counts_per_cycle = velocity;
+                position = *data -> z_offset_counts;
+                error_margin = 0;
+                break;
         }
 
-        if (motion_type == ABSOLUTE){
-            if ((position-EOFFSET_ERROR_MARGIN) >= target){
-                *(data -> z_offset_counts) -= counts_per_cycle;
-            }
-            if ((position+EOFFSET_ERROR_MARGIN)  <= target){
-                
-                *(data -> z_offset_counts) += counts_per_cycle;
-            }
-            return 0;
-        }
-        if (motion_type == FROM_DATUM ){
-            position = g_axes_positions.height_from_stock;
-            if (position-velocity*fperiod >= target){
-                *(data -> z_offset_counts) -= counts_per_cycle;
-            }
-            if (position+velocity*fperiod <= target){
-                *(data -> z_offset_counts) += counts_per_cycle;
-            }
-            return 0 ;
+        //rtapi_print_msg(RTAPI_MSG_INFO, "counts_per_cycle %i\n",counts_per_cycle)
         
+        switch (motion_type){
+
+            case INCREMENTAL:
+                *(data-> z_offset_counts)+= counts_per_cycle;
+                return 0;
+
+            case ABSOLUTE:
+                
+                if (position-error_margin >= target){
+                    *(data -> z_offset_counts) -= counts_per_cycle; 
+                    return 0 ; 
+                }
+                if (position+error_margin <= target){
+                    *(data -> z_offset_counts) += counts_per_cycle;
+                }
+                return 0;
+               
+                
+            case FROM_DATUM:
+                position = g_axes_positions.height_from_stock;
+                if (position-motion_per_cycle >= target){
+                    *(data -> z_offset_counts) -= counts_per_cycle;
+                }
+                if (position+motion_per_cycle <= target){
+                    *(data -> z_offset_counts) += counts_per_cycle;
+                }
+                return 0 ;
+            
         }  
     }
 }
@@ -923,7 +1096,7 @@ void compute_positions(void){
     g_axes_positions.y_absolute = *(data-> axis_y_position) + *(data-> y_offset_current);
     //rtapi_print_msg(RTAPI_MSG_INFO, "absolute y %f \n", g_axes_positions.y_absolute);
     g_axes_positions.z_absolute = *(data-> axis_z_position) + *(data-> z_offset_current);
-    *(data -> z_abs_out) = g_axes_positions.z_absolute;
+    //*(data -> z_abs_out) = g_axes_positions.z_absolute;
     g_axes_positions.height_from_stock = *(data-> axis_z_position) + *(data-> z_offset_current)-g_axes_positions.stock_height;
     *(data -> height_from_stock) = g_axes_positions.height_from_stock;
 
@@ -956,8 +1129,6 @@ lookup_table_t create_lookup_table(const char *  filename){
         token = strtok(line, ",");
         entry[row].entry_method = (module_methods_t)atoi(token);
 
-        
-        
         token = strtok(NULL, ",");
         entry[row].override = (module_methods_t)atoi(token);
 

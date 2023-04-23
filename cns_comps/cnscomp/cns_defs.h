@@ -5,7 +5,7 @@
 #define EOFFSET_ERROR_MARGIN .01
 #define MAX_PREHEAT_TIME 100
 
-#define PARAMETER_COUNT 10
+#define PARAMETER_COUNT 11
 
 enum tf{
     FALSE,
@@ -13,21 +13,20 @@ enum tf{
 };
 
 typedef enum {
-    E_STOP,
-    PROGRAM_PAUSED,
-    MACHINE_DISABLED,
-    PROBE,
-    BEGIN_PROCESS,
-    ACTIVATE_IMPLEMENT,
-    DEACTIVATE_IMPLEMENT,
-    IN_PROCESS_MOTION,
-    LINK_PROCESS_STEPS,
-    PROCESS_RECOVERY_MOTION,
-    PROCESS_RECOVERY_RESET,
-    END_PROCESS,
-    SETUP_CONTOUR,
-    INITIALIZE_PROBE,
-    NUM_METHODS
+    E_STOP,                         //0
+    PROGRAM_PAUSED,                 //1
+    MACHINE_DISABLED,               //2
+    PROBE,                          //3
+    BEGIN_PROCESS,                  //4
+    IN_PROCESS_MOTION,              //5
+    LINK_PROCESS_STEPS,             //6
+    END_PROCESS,                    //7
+    ACTIVATE_IMPLEMENT,             //8
+    DEACTIVATE_IMPLEMENT,           //9
+    PROCESS_RECOVERY_MOTION,        //10
+    PROCESS_RECOVERY_RESUME,        //11
+    INITIALIZE_PROBE,               //12
+    NUM_METHODS                     //13
 }module_methods_t ;
 
 typedef enum {
@@ -38,22 +37,30 @@ typedef enum {
 
 
 typedef enum {
-    WAITING,
-    DISABLED,
+    OFF,
+    IDLE,
+    LINKING,
     PROBE_SETUP,
     PROBING,
-    PROCESS_SETUP,
-    RUNNING_PROCESS,
-    LINKING,
-    NUM_STATES,
+    STARTING_PROCESS,
+    RUNNING,
+    PAUSED,
+    RECOVERING,
+    ENDING_CUT,
+    NUM_STATES
 }machine_state;
 
 typedef enum{
     ABSOLUTE,
     FROM_DATUM,
     INCREMENTAL,
-    CLEAR_OFFSETS
 }  motion_types;
+
+typedef enum{
+    IN,
+    MM,
+    COUNTS
+}units_t;
 
 typedef enum{
     KEEP_POINTS,
@@ -98,24 +105,28 @@ typedef struct {
 typedef struct {
 
     //In Pins
-    hal_bit_t     * cut_recovery;                //"recover from cut error";
+   
     hal_bit_t     * external_estop;              //"external estop input";
     hal_bit_t     * machine_is_on;               //"machine is on signal";
     hal_bit_t     * program_is_idle;             //"program is idle, connect to halui.program.is-idle";
     hal_bit_t     * program_is_paused;           //"program is paused, connect to halui.program.is-paused";
     hal_bit_t     * program_is_running;          //"program is running, connect to halui.program.is-running";
-    hal_bit_t     * resume_cut;                  //"True when user presses resume cut button in cut recovery UI";
+    
    
     hal_bit_t     * spindle_0_is_on;             //Connect to spindle.0.on
     hal_bit_t     * spindle_0_stopped;            //Connect to spindle.0.stop
     hal_bit_t     * spindle_0_at_speed;          //Connect to spindle.0.at-speed
-    hal_bit_t     * resume;                  //on when user resumes cut from cut recovery
     hal_bit_t     * probe_trigger;          //True when probe is triggered
     //hal_bit_t     * add_probe_point;          //True when probe is triggered
     hal_bit_t     * probe_status;          //True when probe is triggered
     hal_bit_t     * clear_probe_data;          //True when probe is triggered
     hal_bit_t     * pierce_command;           //User command to pierce
     hal_bit_t     * all_homed;               //when all joints are homed
+    hal_bit_t     * process_recovery_enable;            //enable cut recovery from gui
+    hal_bit_t     * process_recovery_x_motion;                // move an increment in the x direction
+    hal_bit_t     * process_recovery_y_motion;                //move an increment in the y direction
+    hal_bit_t     * process_recovery_resume;                  //"True when user presses resume cut button in cut recovery UI";
+    
 
     hal_float_t     * temp; //temporary pin for plasmac cut feed rate
 
@@ -153,10 +164,10 @@ typedef struct {
     hal_s32_t     * motion_type;                 //Connect to motion.motion-type
     hal_s32_t     * module_type;                  // The current module type
     hal_s32_t     * cut_type;                       // The type of cut (point to point, manual, etc)
-     hal_s32_t    * probe_type;                       // The probing method, one of probe_types_t
+    hal_s32_t     * probe_type;                       // The probing method, one of probe_types_t
+    hal_s32_t     * recovery_path_points;      //The current index of the offset points    
     //Out Bit Pins
     hal_bit_t     * probe_good;                  //On when probe is good
-    hal_bit_t     * recovering;                  //on when recovering
     hal_bit_t     * active_x_y_offsets;          // on when there are x and y external offsets active
     hal_bit_t     * clear_eoffsets;              // clear eoffsets tie to  axis.x.eoffset-clear,y,z
     hal_bit_t     * enable_eoffsets;             // enable eoffsets tie to  axis.x.eoffset-enable,y,z
@@ -165,6 +176,8 @@ typedef struct {
     hal_bit_t     * torch_on;                   // turn on torch
     hal_bit_t     * process_started;                   //the current cut has started
     hal_bit_t     * program_started;                   //the current cut has started
+    hal_bit_t     * ticker;          //true when the program is ready to be resumed;
+    hal_bit_t     * process_recovering;          //true when the program is no longer in cutrecovery;
 
     //Out S32 Pins
     hal_s32_t     * x_offset_counts;             //"current x axis offset, connect to axis.x.eoffset-counts";
@@ -172,7 +185,7 @@ typedef struct {
     hal_s32_t     * z_offset_counts;             //"current z axis offset, connect to axis.z.eoffset-counts";
     hal_s32_t     * state_out;             //"current z axis offset, connect to axis.z.eoffset-counts";
     hal_s32_t     * method_out;             // The method determined by the lookup table
-     hal_s32_t    * pierce_count;             // How many pierces have been completed in the current program;
+    hal_s32_t    * pierce_count;             // How many pierces have been completed in the current program;
     //Out Float Pins
 
     hal_float_t   * x_offset_scale;             //"current x axis offset, connect to axis.x.eoffset-scale";
@@ -192,15 +205,20 @@ struct positions {
 };
 
 typedef struct {
-    int   probe_points_requested_qty;
+    int  probe_points_requested_qty;
     float probe_points_requested [10][2];
     float point_data [10][3];
     int points_probed;
 }contour_map;
 
+typedef struct {
+    short path_points [15000][2]; //This should be dynamically allocated but oh well we've got hella ram
+    int path_points_idx;
+}process_recovery_t; 
+
 //Utility Prototypes
 lookup_table_t create_lookup_table(const char *  filename);
-int offset_move(motion_types motion_type, char axis, float velocity, float target);
+int offset_move(motion_types motion_type, units_t unit,char axis, float velocity, float target);
 void run_state_machine();
 void add_to_contour_map(void);
 void clear_contour_map(void);
@@ -219,9 +237,8 @@ module_methods_t semi_auto_gc_torch_off(void);
 module_methods_t semi_auto_gc_in_process_motion(void);
 module_methods_t semi_auto_gc_link_process_steps(void);
 module_methods_t semi_auto_gc_cut_recovery_motion(void);
-module_methods_t semi_auto_gc_cut_recovery_reset(void);
+module_methods_t semi_auto_gc_cut_recovery_resume(void);
 module_methods_t semi_auto_gc_end_process(void);
-module_methods_t semi_auto_gc_idle(void);
 module_methods_t semi_auto_gc_initialize_probe(void);
 
 #endif
