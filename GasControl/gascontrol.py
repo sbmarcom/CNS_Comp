@@ -40,11 +40,14 @@ except linuxcnc.error:
 #spi.xfer([0x00],9600)
 c =hal.component('GC')
 c.newpin("ModuleStatus",hal.HAL_U32,hal.HAL_IN) #TBA
+c.newpin("ProbeEnable",hal.HAL_BIT,hal.HAL_IN)
+c.newpin("ProbeStatus",hal.HAL_BIT,hal.HAL_OUT)
 c.newpin("ModulePluggedIn",hal.HAL_BIT,hal.HAL_IN) #TBA
 c.newpin("Pierce",hal.HAL_BIT,hal.HAL_IN) #true when user verifies material is preheated
 c.newpin("FlameCommandOn",hal.HAL_BIT,hal.HAL_IN) #True when M03
 c.newpin("ReadyToCutConfirmation", hal.HAL_BIT,hal.HAL_OUT) #set true when preheat is confirmed
 c.newpin("ProbeDetected", hal.HAL_BIT,hal.HAL_OUT)
+c.newpin("ticker", hal.HAL_BIT,hal.HAL_IN)
 time.sleep(.1)
 
 
@@ -122,13 +125,14 @@ class module:
         time.sleep(.01)
         #t = spi.xfer([0xAB])
         BottomedOut = [0]
+         
         while  (BottomedOut[0]!=1 and hal.get_value("cns_comp.probe_enable") ):
             time.sleep(.01)
-            
             BottomedOut = spi.xfer([0xAB])
         print("Probe Activated")
         a = spi.xfer([0x75,0x00,0x00,0x00,0x00,0x00])
         time.sleep(0.01)
+        hal.set_p("cns_comp.probe_status","0")
         b = spi.xfer([0x73,0,0,0,0,0])
         if BottomedOut[0] ==1:
             c.ProbeDetected = 1
@@ -144,6 +148,11 @@ Manifold.PluggedIn= True
 Manifold.Initialize()
 Manifold.TurnOffJet()
 while (True):
+    if (hal.get_value("GC.ticker")):
+        hal.set_p("GC.ticker","0")
+    else:
+        hal.set_p("GC.ticker","1")
+    time.sleep(.002)
     s.poll()
     #if (s.estop):
         #turn off gas
@@ -169,11 +178,14 @@ while (True):
         #Manifold.TurnOffJet()
         #print("Turning off spindle at speed because of cut recovery")
    # print(f" CuttingJetCommand: {Manifold.CuttingJetCommand}")
-    if hal.get_value("cns_comp.probe_enable"):
+    if c.ProbeEnable and not c.ProbeStatus:
+        c.ProbeStatus = True
         print("Going to Probe in gascontrol.py")
-        Manifold.Probe()
+
+        #Manifold.Probe()
         
-    if Manifold.CuttingJetCommand :
+        
+    if Manifold.CuttingJetCommand and c.FlameCommandOn and c.Pierce:
         if Manifold.CuttingJetStatus==False:
             Manifold.TurnOnJet()  
          
@@ -184,7 +196,8 @@ while (True):
         if Manifold.CuttingJetStatus==True:
             Manifold.TurnOffJet()
             c.ReadyToCutConfirmation = False
-        
+    
+      
             
                 
     

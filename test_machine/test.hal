@@ -4,24 +4,37 @@
 	loadrt [KINS]KINEMATICS
 	loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_spindles=[TRAJ]SPINDLES
 	loadrt remora
-	loadrt cns_comp	
+	loadrt cns_comp
     loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
 	loadrt or2 count=3
 	loadrt not count=1
+	loadrt and2 count=2
+	
 	#loadusr -W hal_input -KRAL "Product=572b"
 
 
 	setp halui.feed-override.scale .01
+	setp cns_comp.state_override 15
+	setp cns_comp.probe_point_count 1
+	setp cns_comp.probe_feed_rate .1
+	setp cns_comp.setup_velocity .1
+	setp cns_comp.probe_start_height 1.2
+	setp cns_comp.safe_height 1.4
+	setp cns_comp.probe_status 1
+	setp cns_comp.probe_type 1
+	net cns_comp:pierce-command motion.digital-in-00 or2.1.out cns_comp.pierce_command
 	
-
+	
 #load the GC python script
 	loadusr -Wn GC ~/cn-seamless/GasControl/gascontrol.py
-	net Pierce GC.Pierce motion.digital-in-00 or2.1.out
-    net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation cns_comp.spindle_0_at_speed#TRUE when manifold sends verification of torch being on
+	net Pierce GC.Pierce cns_comp.torch_on 
+	net ProbeStatus GC.ProbeStatus cns_comp.probe_status
+	net ProbeEnableGC GC.ProbeEnable cns_comp.probe_enable
+    net CutConfirmation spindle.0.at-speed GC.ReadyToCutConfirmation cns_comp.spindle_0_at_speed  #TRUE when manifold sends verification of torch being on
     net M3 spindle.0.on GC.FlameCommandOn cns_comp.spindle_0_is_on   # TRUE when M3 
 	net ProbeReturn or2.0.in0 GC.ProbeDetected
 	net fucked or2.2.out or2.0.in1
-	
+	net probe_out or2.0.out cns_comp.probe_trigger
 	
 
 #	net jog_z_up  input.0.btn-a
@@ -46,15 +59,18 @@
 
 	#read position feedback
 	addf remora.read servo-thread
+	addf or2.0 servo-thread
+	addf or2.1 servo-thread
+	addf or2.2 servo-thread
+	addf and2.0 servo-thread
+	addf and2.1 servo-thread
+	addf not.0 servo-thread
 	addf cns_comp.run_state_machine servo-thread
 	addf motion-command-handler servo-thread
 	addf motion-controller servo-thread
 	addf remora.write servo-thread
 	addf db_ohmic servo-thread
-	addf or2.0 base-thread
-	addf or2.1 base-thread
-	addf or2.2 base-thread
-	addf not.0 base-thread
+	
 	#write position feedback
 
 	setp proto2kins.D2 [MACHINE_DIMENSIONS]ARM1_LENGTH

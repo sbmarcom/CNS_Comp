@@ -450,7 +450,7 @@ void run_state_machine(){
         g_process_recovery.path_points_idx = 0;
         g_contour.points_probed = 0;
         *(data ->probe_good) = 0;
-        
+        g_process_recovery.path_points_idx = 0;
         *(data ->active_x_y_offsets) = 0;
         *(data ->clear_eoffsets) = 0;
         *(data ->enable_eoffsets) = 0;
@@ -612,6 +612,7 @@ module_methods_t semi_auto_gc_probe(void){
 
     }
     if (!*(data -> enable_eoffsets)){
+         *(data ->clear_eoffsets) = FALSE;
          *(data -> enable_eoffsets) = TRUE;
          *(data ->z_offset_scale ) = .0001;
          *(data ->x_offset_scale ) = .0001;
@@ -754,7 +755,7 @@ module_methods_t semi_auto_gc_link_process_steps(void){
     else{ 
         *(data -> feed_hold) = FALSE;
     }
-    offset_move(ABSOLUTE,IN,'z', *(data -> setup_velocity), *(data -> safe_height));
+    offset_move(ABSOLUTE,IN,'z', 2* *(data -> setup_velocity), *(data -> safe_height));
 
     if(*data-> torch_on){
         return DEACTIVATE_IMPLEMENT;
@@ -764,8 +765,8 @@ module_methods_t semi_auto_gc_link_process_steps(void){
 }
 
 module_methods_t semi_auto_gc_program_paused(void){
-    if (!*data-> process_recovering){
-        *data -> probe_good = FALSE;
+    if (!*data-> process_recovering && !*data->process_recovery_resume){
+       // *data -> probe_good = FALSE;
         *data-> state_out = PAUSED;
         if (*data-> torch_on){
             return DEACTIVATE_IMPLEMENT;
@@ -806,26 +807,26 @@ module_methods_t semi_auto_gc_cut_recovery_motion(void){
         g_process_recovery.path_points[g_process_recovery.path_points_idx][1] = y_counts + *data->process_recovery_y_motion;
     }
 
-    offset_move(ABSOLUTE,COUNTS,'x',(float)2, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][0]);
-    offset_move(ABSOLUTE,COUNTS,'y',(float)2, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][1]);
+    offset_move(ABSOLUTE,COUNTS,'x',(float)1, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][0]);
+    offset_move(ABSOLUTE,COUNTS,'y',(float)1, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][1]);
 
     return NUM_METHODS;
 }
 module_methods_t semi_auto_gc_cut_recovery_resume(void){
-    /*
-    if (!*data -> probe_good){
+    
+    if (!*data->probe_good){
         return PROBE;
     }
     if (!*data->torch_on || *data->feed_hold){
         return BEGIN_PROCESS;
     }
-    */
-
+     
     if (*data->x_offset_counts == g_process_recovery.path_points[g_process_recovery.path_points_idx][0] &&
         *data->y_offset_counts == g_process_recovery.path_points[g_process_recovery.path_points_idx][1]){
 
-        if (g_process_recovery.path_points_idx ==0){
+        if (g_process_recovery.path_points_idx == 0){
             *data->process_recovering= FALSE;  
+            
             return IN_PROCESS_MOTION;
         } 
         g_process_recovery.path_points_idx --;
@@ -833,30 +834,32 @@ module_methods_t semi_auto_gc_cut_recovery_resume(void){
 
         }
 
-    offset_move(ABSOLUTE,COUNTS,'x',(float)2, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][0]);
-    offset_move(ABSOLUTE,COUNTS,'y',(float)2, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][1]);
+    offset_move(ABSOLUTE,COUNTS,'x',(float)1, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][0]);
+    offset_move(ABSOLUTE,COUNTS,'y',(float)1, (float)g_process_recovery.path_points[g_process_recovery.path_points_idx][1]);
 
     return IN_PROCESS_MOTION;
 }
 
 module_methods_t semi_auto_gc_end_process(void){
+    
     *(data -> state_out)= ENDING_CUT;
     *(data -> process_started)= FALSE;
-    if (g_axes_positions.height_from_stock-EOFFSET_ERROR_MARGIN <= *(data -> safe_height) && 
-        g_axes_positions.height_from_stock+EOFFSET_ERROR_MARGIN >= *(data -> safe_height)){
-            *(data -> state_out)= IDLE;
-            *(data -> program_started)= FALSE;
+    *(data -> probe_good)= FALSE;
+    
+    if (g_axes_positions.z_absolute+EOFFSET_ERROR_MARGIN <= *(data -> safe_height) || 
+        g_axes_positions.z_absolute-EOFFSET_ERROR_MARGIN >= *(data -> safe_height)){
+            offset_move(ABSOLUTE,IN,'z', 2* *(data -> setup_velocity), *(data -> safe_height));
             return NUM_METHODS;
     }
-    offset_move(FROM_DATUM,IN,'z', *(data -> setup_velocity), *(data -> safe_height));
+    
     if(*data-> torch_on){
         return DEACTIVATE_IMPLEMENT;
     }
-    return NUM_METHODS;
-
-    
-    
-    offset_move(FROM_DATUM,IN,'z', *(data -> setup_velocity), *(data -> safe_height));
+    *(data -> state_out)= IDLE;
+    *(data -> enable_eoffsets)= FALSE;
+    *(data ->clear_eoffsets) = TRUE;
+    *(data -> program_started)= FALSE;
+   
     return NUM_METHODS;
 }
 
@@ -951,7 +954,7 @@ int offset_move(motion_types motion_type, units_t units,  char axis,float veloci
             case COUNTS:
                 counts_per_cycle = velocity;
                 position = *data -> x_offset_counts;
-                error_margin = 0;
+                motion_per_cycle = counts_per_cycle;
                 break;
         }
 
@@ -962,13 +965,13 @@ int offset_move(motion_types motion_type, units_t units,  char axis,float veloci
                 return 0;
 
             case ABSOLUTE:
-                if (((position-error_margin)) >= target){
+                if (((position-motion_per_cycle)) >= target){
                     *(data -> x_offset_counts) -= counts_per_cycle;
                     return 0;
                 }
-                if ((position+error_margin) <= target){
+                if ((position+motion_per_cycle) <= target){
                     *(data -> x_offset_counts) += counts_per_cycle;         
-                return 0;
+                    return 0;
                 }
                 
  
@@ -995,7 +998,6 @@ int offset_move(motion_types motion_type, units_t units,  char axis,float veloci
             case COUNTS:
                 counts_per_cycle = velocity;
                 position = *data -> y_offset_counts;
-                error_margin = 0;
                 motion_per_cycle = counts_per_cycle;
                 break;
         }
@@ -1006,11 +1008,11 @@ int offset_move(motion_types motion_type, units_t units,  char axis,float veloci
 
             case ABSOLUTE:
 
-                if (position-error_margin >= target){
+                if (position-motion_per_cycle >= target){
                     *(data -> y_offset_counts) -= counts_per_cycle;
                     return 0;
                 }
-                if (position+error_margin <= target){
+                if (position+motion_per_cycle <= target){
                     *(data -> y_offset_counts) += counts_per_cycle;
                     return 0;
                 }
@@ -1039,7 +1041,7 @@ int offset_move(motion_types motion_type, units_t units,  char axis,float veloci
             case COUNTS:
                 counts_per_cycle = velocity;
                 position = *data -> z_offset_counts;
-                error_margin = 0;
+                motion_per_cycle = counts_per_cycle;
                 break;
         }
 
@@ -1053,11 +1055,11 @@ int offset_move(motion_types motion_type, units_t units,  char axis,float veloci
 
             case ABSOLUTE:
                 
-                if (position-error_margin >= target){
+                if (position-motion_per_cycle >= target){
                     *(data -> z_offset_counts) -= counts_per_cycle; 
                     return 0 ; 
                 }
-                if (position+error_margin <= target){
+                if (position+motion_per_cycle <= target){
                     *(data -> z_offset_counts) += counts_per_cycle;
                 }
                 return 0;
