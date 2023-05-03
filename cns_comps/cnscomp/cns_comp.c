@@ -433,6 +433,8 @@ int rtapi_app_main(void)
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][PROCESS_RECOVERY_RESUME]=   semi_auto_gc_cut_recovery_resume;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][END_PROCESS]=               semi_auto_gc_end_process;
     g_function_pointers.function_ptrs[SEMI_AUTO_GC][INITIALIZE_PROBE]=          semi_auto_gc_initialize_probe;
+
+    
  
 
     rtapi_print_msg(RTAPI_MSG_INFO, "%s: installed driver\n", modname);
@@ -846,15 +848,17 @@ module_methods_t semi_auto_gc_end_process(void){
     *(data -> process_started)= FALSE;
     *(data -> probe_good)= FALSE;
     
+    if(*data-> torch_on){
+        return DEACTIVATE_IMPLEMENT;
+    }
+    
     if (g_axes_positions.z_absolute+EOFFSET_ERROR_MARGIN <= *(data -> safe_height) || 
         g_axes_positions.z_absolute-EOFFSET_ERROR_MARGIN >= *(data -> safe_height)){
             offset_move(ABSOLUTE,IN,'z', 2* *(data -> setup_velocity), *(data -> safe_height));
             return NUM_METHODS;
     }
     
-    if(*data-> torch_on){
-        return DEACTIVATE_IMPLEMENT;
-    }
+    
     *(data -> state_out)= IDLE;
     *(data -> enable_eoffsets)= FALSE;
     *(data ->clear_eoffsets) = TRUE;

@@ -212,11 +212,11 @@ typedef struct {
 }contour_map;
 
 typedef struct {
-    short path_points [15000][2]; //This should be dynamically allocated but oh well we've got hella ram
+    short path_points [15000][2]; //This should be dynamically allocated but oh well we've got hella ram i'll do it later
     int path_points_idx;
 }process_recovery_t; 
 
-//Utility Prototypes
+//Utility Function Prototypes
 lookup_table_t create_lookup_table(const char *  filename);
 int offset_move(motion_types motion_type, units_t unit,char axis, float velocity, float target);
 void run_state_machine();
